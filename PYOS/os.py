@@ -11,6 +11,7 @@ def limpar_tela():
     os.system('cls' if os.name == 'nt' else 'clear')
 
 def iniciar_pyos():
+    os.system('')
     limpar_tela()
     
     # --- NOVO SISTEMA DE LOGIN COM PALAVRA-PASSE E BASE DE DADOS ---
@@ -53,7 +54,7 @@ def iniciar_pyos():
     limpar_tela()
     print("=================================================")
     print(f" Bem-vindo ao PyOS, {usuario}! ")
-    print(" Digite 'ajuda' para ver os comandos disponíveis.")
+    print(" Digite 'help' para ver os comandos disponíveis.")
     print("=================================================")
 
     while True:
@@ -90,6 +91,7 @@ def iniciar_pyos():
             print("  read    : Exibe o texto de um arquivo no terminal (ex: ler notas.txt)")
             print("  write   : Cria/edita um arquivo de texto (ex: escrever notas.txt)")
             print("  edit    : Edita um arquivo de texto já existente (ex: editar notas.txt)")
+            print("  color   : Muda a cor do terminal (ex: cor verde, cor restaurar)")
             print("  quit    : Desliga o sistema")
             
         elif comando == "date":
@@ -347,6 +349,38 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite o nome do arquivo. Exemplo: editar notas.txt")
                 
+        elif comando == "color":
+            # Dicionário com os códigos mágicos ANSI de cada cor
+            cores = {
+                "vermelho": "\033[31m",
+                "verde": "\033[32m",
+                "amarelo": "\033[33m",
+                "azul": "\033[34m",
+                "roxo": "\033[35m",
+                "ciano": "\033[36m",
+                "branco": "\033[37m",
+                "restaurar": "\033[0m"
+            }
+            
+            if argumento:
+                # Transforma o argumento em minúsculo para evitar erros (ex: VERDE vira verde)
+                cor_escolhida = argumento.lower()
+                
+                if cor_escolhida in cores:
+                    # Imprime o código invisível. O terminal muda de cor instantaneamente!
+                    print(cores[cor_escolhida], end="")
+                    
+                    # Uma mensagem bonitinha já na cor nova
+                    if cor_escolhida == "restaurar":
+                        print("Cor restaurada para o padrão do sistema.")
+                    else:
+                        print(f"Cor alterada para {cor_escolhida}! Bem-vindo ao modo hacker.")
+                else:
+                    print("Cor inválida. As opções são:")
+                    print(" -> vermelho, verde, amarelo, azul, roxo, ciano, branco, restaurar")
+            else:
+                print("Por favor, digite uma cor. Exemplo: cor verde")
+
         else:
             print(f"Comando '{comando}' não reconhecido. Digite 'ajuda' para ver a lista.")
 
