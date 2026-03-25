@@ -95,14 +95,24 @@ def iniciar_pyos():
             sys.exit()
             
         elif comando == "help":
+            print("\n--- Comandos de Ajuda ---")
+            print("  help basics    : Exibe os comandos básicos do programa")
+            print("  help archives  : Exibe os comandos de exploração de arquivos")
+            print("  help config    : Exibe os comandos de configurações de usuários e outros")
+            print("  quit           : Desliga o sistema")
+
+        elif comando == "help basics":
             print("\n--- Comandos Disponíveis ---")
-            print("  help    : Mostra esta lista de comandos")
+            print("  help    : Mostra esta lista de comandos de ajuda")
             print("  date    : Exibe a data e hora atuais")
             print("  ping    : Testa a conexão de rede com um site ou IP (ex: ping google.com)")
             print("  clear   : Limpa a tela do terminal")
             print("  list    : Lista os arquivos na pasta atual")
             print("  print   : Repete o que você digitar (ex: print olá mundo)")
             print("  calc    : Uma calculadora simples (ex: calc 5 + 5)")
+
+        elif comando == "help archives":
+            print("\n--- Comandos Disponíveis ---")
             print("  cd      : Navega entre as pastas (ex: cd nome_da_pasta ou cd .. para voltar)")
             print("  search  : Busca arquivos e pastas pelo nome (ex: search projeto)")
             print("  mkdir   : Cria uma nova pasta (ex: mkdir nova_pasta)")
@@ -114,13 +124,19 @@ def iniciar_pyos():
             print("  read    : Exibe o texto de um arquivo no terminal (ex: read notas.txt)")
             print("  write   : Cria/edita um arquivo de texto (ex: write notas.txt)")
             print("  edit    : Edita um arquivo de texto já existente (ex: edit notas.txt)")
-            print("  color   : Muda a cor do terminal (ex: color verde, color restaurar)")
-            print("  quit    : Desliga o sistema")
             
+        elif comando == "help config":
+            print("\n--- Comandos Disponíveis ---")
+            print("  adduser : Adiciona um novo usuário ao sistema (ex: adduser maria)")
+            print("  dltuser : Deleta um usuário do sistema (ex: deluser joao)")
+            print("  color   : Muda a cor do terminal (ex: color verde, color restaurar)")
+            
+# Comando date
         elif comando == "date":
             agora = datetime.datetime.now()
             print(f"Data e hora do sistema: {agora.strftime('%d/%m/%Y %H:%M:%S')}")
 
+# Comando ping
         elif comando == "ping":
             if argumento:
                 print(f"\nDisparando pulsos de rede para '{argumento}'...")
@@ -143,9 +159,10 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite o endereço de um site ou IP. Exemplo: ping google.com")
             
+# Comando clear
         elif comando == "clear":
             limpar_tela()
-            
+# Comando list
         elif comando == "list":
             print(f"\nConteúdo do diretório atual ({os.getcwd()}):")
             try:
@@ -168,9 +185,10 @@ def iniciar_pyos():
             except Exception as e:
                 print(f"Erro ao ler diretório: {e}")
                 
+# Comando print
         elif comando == "print":
             print(argumento)
-            
+# Comando calc
         elif comando == "calc":
             if argumento:
                 try:
@@ -183,6 +201,7 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite uma conta. Exemplo: calc 5 + 5")
 
+# Comando cd
         elif comando == "cd":
             if argumento:
                 try:
@@ -197,23 +216,8 @@ def iniciar_pyos():
                     print(f"Erro ao acessar a pasta: {e}")
             else:
                 print("Por favor, digite o nome da pasta. Exemplo: 'cd Documentos (ou 'cd ..' para voltar)'")
-                
-        elif comando == "disc":
-            try:
-                # Analisa o disco com base no diretório em que estamos
-                caminho_atual = os.getcwd()
-                total, usado, livre = shutil.disk_usage(caminho_atual)
-                
-                # Converte os valores de bytes para Gigabytes (GB)
-                gb = 1024 ** 3
-                
-                print(f"\nAnálise de Armazenamento do disco atual:")
-                print(f" -> Espaço Total : {total // gb} GB")
-                print(f" -> Espaço Usado : {usado // gb} GB")
-                print(f" -> Espaço Livre : {livre // gb} GB")
-            except Exception as e:
-                print(f"Erro ao analisar o disco: {e}")
 
+# Comando search
         elif comando == "search":
             if argumento:
                 print(f"\nVasculhando pastas por '{argumento}' a partir de: {os.getcwd()}")
@@ -245,7 +249,8 @@ def iniciar_pyos():
                     print(f"\nBusca concluída: {encontrados} item(s) encontrado(s).")
             else:
                 print("Por favor, digite o nome ou parte do nome para buscar. Exemplo: procurar relatorio")
-                
+
+# Comando mkdir
         elif comando == "mkdir":
             if argumento:
                 try:
@@ -260,6 +265,7 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite o nome da pasta. Exemplo: 'mkdir arquivos_importantes'")
                 
+# Comando rmdir
         elif comando == "rmdir":
             if argumento:
                 # Esta função ajuda a burlar o erro de "Acesso Negado" em arquivos protegidos
@@ -281,7 +287,8 @@ def iniciar_pyos():
                     print(f"Erro ao deletar a pasta: {e}")
             else:
                 print("Por favor, digite o nome da pasta. Exemplo: 'rmdir pasta_antiga'")
-                
+
+# Comando open
         elif comando == "open":
             if argumento:
                 if os.path.exists(argumento):
@@ -302,6 +309,7 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite o nome do arquivo. Exemplo: 'open documento.pdf'")
 
+# Comando delete
         elif comando == "delete":
             if argumento:
                 # 1. Verifica se o que o usuário digitou realmente é um arquivo
@@ -325,6 +333,7 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite o nome do arquivo que deseja deletar. Exemplo: delete notas.txt")
 
+# Comando empty
         elif comando == "empty":
             if argumento:
                 try:
@@ -350,6 +359,24 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite o nome da pasta. Exemplo: 'empty arquivos_velhos'")
                 
+# Comando disc
+        elif comando == "disc":
+            try:
+                # Analisa o disco com base no diretório em que estamos
+                caminho_atual = os.getcwd()
+                total, usado, livre = shutil.disk_usage(caminho_atual)
+                
+                # Converte os valores de bytes para Gigabytes (GB)
+                gb = 1024 ** 3
+                
+                print(f"\nAnálise de Armazenamento do disco atual:")
+                print(f" -> Espaço Total : {total // gb} GB")
+                print(f" -> Espaço Usado : {usado // gb} GB")
+                print(f" -> Espaço Livre : {livre // gb} GB")
+            except Exception as e:
+                print(f"Erro ao analisar o disco: {e}")
+                
+# Comando read
         elif comando == "read":
             if argumento:
                 # Verifica se o que o usuário digitou é realmente um arquivo
@@ -370,6 +397,7 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite o nome do arquivo. Exemplo: 'read notas.txt'")
                 
+# Comando write
         elif comando == "write":
             if argumento:
                 print(f"\n--- Escrevendo em: {argumento} ---")
@@ -402,6 +430,7 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite o nome do arquivo. Exemplo: 'write notas.txt'")
 
+# Comando edit
         elif comando == "edit":
             if argumento:
                 # Verifica se o arquivo existe antes de tentar editar
@@ -448,7 +477,70 @@ def iniciar_pyos():
                     print(f"Erro: '{argumento}' não foi encontrado. Se quiser criar um novo, use o comando 'write'.")
             else:
                 print("Por favor, digite o nome do arquivo. Exemplo: 'edit notas.txt'")
-                
+
+# Comando adduser
+        elif comando == "adduser":
+            if argumento:
+                arquivo_db = "usuarios_db.json"
+                try:
+                    # Carrega o banco de dados atual
+                    with open(arquivo_db, 'r', encoding='utf-8') as f:
+                        banco_usuarios = json.load(f)
+                    
+                    # Verifica se o usuário já existe
+                    if argumento in banco_usuarios:
+                        print(f"Erro: O usuário '{argumento}' já existe no sistema.")
+                    else:
+                        # Pede a senha para o novo usuário
+                        nova_senha = input(f"Crie uma senha para o usuário '{argumento}': ")
+                        banco_usuarios[argumento] = nova_senha
+                        
+                        # Salva a atualização no arquivo JSON
+                        with open(arquivo_db, 'w', encoding='utf-8') as f:
+                            json.dump(banco_usuarios, f, indent=4)
+                        print(f"Usuário '{argumento}' criado com sucesso!")
+                except Exception as e:
+                    print(f"Erro ao gerenciar usuários: {e}")
+            else:
+                print("Por favor, digite o nome do novo usuário. Exemplo: adduser visitante")
+
+# Comando dltuser
+        elif comando == "dltuser":
+            if argumento:
+                # Trava de segurança: impede o suicídio digital!
+                if argumento == usuario:
+                    print("Erro Crítico: Você não pode deletar o seu próprio usuário enquanto está logado!")
+                else:
+                    arquivo_db = "usuarios_db.json"
+                    arquivo_config = "config_db.json"
+                    try:
+                        with open(arquivo_db, 'r', encoding='utf-8') as f:
+                            banco_usuarios = json.load(f)
+                        
+                        if argumento in banco_usuarios:
+                            # Deleta o usuário do dicionário e salva
+                            del banco_usuarios[argumento]
+                            with open(arquivo_db, 'w', encoding='utf-8') as f:
+                                json.dump(banco_usuarios, f, indent=4)
+                            
+                            # Limpeza extra: apaga as configurações de cor desse usuário, se existirem
+                            if os.path.exists(arquivo_config):
+                                with open(arquivo_config, 'r', encoding='utf-8') as f:
+                                    banco_cores = json.load(f)
+                                if argumento in banco_cores:
+                                    del banco_cores[argumento]
+                                    with open(arquivo_config, 'w', encoding='utf-8') as f:
+                                        json.dump(banco_cores, f, indent=4)
+                                        
+                            print(f"Usuário '{argumento}' deletado do sistema com sucesso!")
+                        else:
+                            print(f"Erro: O usuário '{argumento}' não existe no banco de dados.")
+                    except Exception as e:
+                        print(f"Erro ao gerenciar usuários: {e}")
+            else:
+                print("Por favor, digite o nome do usuário que deseja deletar. Exemplo: deluser visitante")
+
+# Comando color
         elif comando == "color":
             cores = {
                 "vermelho": "\033[31m",
