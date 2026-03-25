@@ -252,17 +252,35 @@ def iniciar_pyos():
             try:
                 # Configura a IA com a chave do usuário
                 genai.configure(api_key=chave_api)
-                # Usamos o modelo pro, que é o padrão universal e mais estável da API
-                modelo = genai.GenerativeModel('gemini-pro')
                 
-                # Inicia o histórico de chat para a IA lembrar do contexto da conversa
+                print("Procurando um modelo de IA compatível nos servidores do Google...", end="\r")
+                
+                # --- NOVO: BUSCA AUTOMÁTICA DE MODELO ---
+                nome_modelo = None
+                for m in genai.list_models():
+                    # Procura o primeiro modelo que suporte geração de texto ('generateContent')
+                    if 'generateContent' in m.supported_generation_methods:
+                        nome_modelo = m.name
+                        # Vamos dar preferência para os modelos mais novos (1.5) se existirem
+                        if '1.5' in nome_modelo:
+                            break 
+                            
+                if not nome_modelo:
+                    print("Erro Crítico: Nenhum modelo de texto disponível para a sua conta/chave.")
+                    continue
+                    
+                # Inicia o modelo que o PyOS descobriu sozinho!
+                modelo = genai.GenerativeModel(nome_modelo)
+                # ----------------------------------------
+                
+                # Limpa a linha de busca
+                print(" " * 60, end="\r")
+                
                 chat = modelo.start_chat(history=[])
-                
-                print("\nConexão estabelecida! Você está conversando com o Assistente PyOS.")
-                print("DICA: Digite ':q' ou 'sair' para encerrar o chat e voltar ao sistema.")
+                print(f"\nConexão estabelecida usando o modelo: {nome_modelo}")
+                print("Você está conversando com o Assistente PyOS. Digite ':q' ou 'sair' para voltar.")
                 print("-" * 65)
                 
-                # Loop infinito do chat
                 while True:
                     pergunta = input(f"\n[{usuario}] > ")
                     
@@ -273,17 +291,13 @@ def iniciar_pyos():
                         continue
                         
                     print("[PyOS AI] Pensando...", end="\r")
-                    
-                    # Envia a pergunta para a IA e recebe a resposta
                     resposta = chat.send_message(pergunta)
-                    
-                    # Limpa a linha do "Pensando..." e imprime a resposta real
                     print(" " * 20, end="\r") 
                     print(f"[PyOS AI] {resposta.text}")
                     
             except Exception as e:
                 print(f"\nErro de conexão com a IA: {e}")
-                print("DICA: Se a sua chave estiver errada, delete o arquivo 'config_db.json' para resetar.")
+                print("DICA: Se a sua chave estiver inválida, abra o arquivo 'config_db.json' e apague a linha da sua API key para o sistema pedir uma nova.")
 
 # Comando cd
         elif comando == "cd":
