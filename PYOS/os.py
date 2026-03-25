@@ -252,8 +252,8 @@ def iniciar_pyos():
             try:
                 # Configura a IA com a chave do usuário
                 genai.configure(api_key=chave_api)
-                # Usamos o modelo flash por ser mais rápido para chats de terminal
-                modelo = genai.GenerativeModel('gemini-1.5-flash')
+                # Usamos o modelo pro, que é o padrão universal e mais estável da API
+                modelo = genai.GenerativeModel('gemini-pro')
                 
                 # Inicia o histórico de chat para a IA lembrar do contexto da conversa
                 chat = modelo.start_chat(history=[])
