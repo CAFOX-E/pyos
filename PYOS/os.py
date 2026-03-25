@@ -6,6 +6,7 @@ import stat
 import subprocess
 import json
 import time
+import csv
 import google.generativeai as genai
 
 def limpar_tela():
@@ -100,40 +101,46 @@ def iniciar_pyos():
             print("\n--- Comandos de Ajuda ---")
             print("  help-basics    : Exibe os comandos básicos do programa")
             print("  help-archives  : Exibe os comandos de exploração de arquivos")
+            print("  help-office    : Exibe os comandos de criação e edição de arquivos de textos e planilhas")
             print("  help-config    : Exibe os comandos de configurações de usuários e outros")
             print("  quit           : Desliga o sistema")
 
         elif comando == "help-basics":
             print("\n--- Comandos Disponíveis ---")
-            print("  help    : Mostra esta lista de comandos de ajuda")
-            print("  logout  : Encerra a sessão atual e volta para a tela de login")
-            print("  date    : Exibe a data e hora atuais")
-            print("  ping    : Testa a conexão de rede com um site ou IP (ex: ping google.com)")
-            print("  clear   : Limpa a tela do terminal")
-            print("  list    : Lista os arquivos na pasta atual")
-            print("  print   : Repete o que você digitar (ex: print olá mundo)")
-            print("  calc    : Uma calculadora simples (ex: calc 5 + 5)")
-            print("  ai      : Inicia uma conversa com a Inteligência Artificial (ex: ai)")
+            print("  help        : Mostra esta lista de comandos de ajuda")
+            print("  logout      : Encerra a sessão atual e volta para a tela de login")
+            print("  date        : Exibe a data e hora atuais")
+            print("  ping        : Testa a conexão de rede com um site ou IP (ex: ping google.com)")
+            print("  clear       : Limpa a tela do terminal")
+            print("  list        : Lista os arquivos na pasta atual")
+            print("  print       : Repete o que você digitar (ex: print olá mundo)")
+            print("  calc        : Uma calculadora simples (ex: calc 5 + 5)")
+            print("  ai          : Inicia uma conversa com a Inteligência Artificial (ex: ai)")
 
         elif comando == "help-archives":
             print("\n--- Comandos Disponíveis ---")
-            print("  cd      : Navega entre as pastas (ex: cd nome_da_pasta ou cd .. para voltar)")
-            print("  search  : Busca arquivos e pastas pelo nome (ex: search projeto)")
-            print("  mkdir   : Cria uma nova pasta (ex: mkdir nova_pasta)")
-            print("  rmdir   : Deleta uma pasta (ex: rmdir pasta_antiga)")
-            print("  open    : Executa um arquivo com o programa padrão do seu computador (ex: open foto.jpg)")
-            print("  delete  : Deleta um arquivo específico (ex: delete texto.txt)")
-            print("  empty   : Apaga TODOS os arquivos de uma pasta de uma vez (ex: empty minha_pasta)")
-            print("  disk    : Analisa o espaço de armazenamento do disco atual")
-            print("  read    : Exibe o texto de um arquivo no terminal (ex: read notas.txt)")
-            print("  write   : Cria/edita um arquivo de texto (ex: write notas.txt)")
-            print("  edit    : Edita um arquivo de texto já existente (ex: edit notas.txt)")
+            print("  cd          : Navega entre as pastas (ex: cd nome_da_pasta ou cd .. para voltar)")
+            print("  search      : Busca arquivos e pastas pelo nome (ex: search projeto)")
+            print("  mkdir       : Cria uma nova pasta (ex: mkdir nova_pasta)")
+            print("  rmdir       : Deleta uma pasta (ex: rmdir pasta_antiga)")
+            print("  open        : Executa um arquivo com o programa padrão do seu computador (ex: open foto.jpg)")
+            print("  delete      : Deleta um arquivo específico (ex: delete texto.txt)")
+            print("  empty       : Apaga TODOS os arquivos de uma pasta de uma vez (ex: empty minha_pasta)")
+            print("  disk        : Analisa o espaço de armazenamento do disco atual")
             
+        elif comando == "help-office":
+            print("  txt_read    : Exibe o texto de um arquivo no terminal (ex: read notas.txt)")
+            print("  txt_write   : Cria/edita um arquivo de texto (ex: write notas.txt)")
+            print("  txt_edit    : Edita um arquivo de texto já existente (ex: edit notas.txt)")
+            print("  csv_write   : Cria uma nova planilha (ex: planilha_criar dados.csv)")
+            print("  csv_add     : Adiciona uma linha de dados à planilha (ex: planilha_add dados.csv)")
+            print("  csv_read    : Lê e exibe uma planilha em formato de tabela (ex: planilha_ler dados.csv)")
+
         elif comando == "help-config":
             print("\n--- Comandos Disponíveis ---")
-            print("  adduser : Adiciona um novo usuário ao sistema (ex: adduser maria)")
-            print("  dltuser : Deleta um usuário do sistema (ex: deluser joao)")
-            print("  color   : Muda a cor do terminal (ex: color verde, color restaurar)")
+            print("  adduser     : Adiciona um novo usuário ao sistema (ex: adduser maria)")
+            print("  dltuser     : Deleta um usuário do sistema (ex: deluser joao)")
+            print("  color       : Muda a cor do terminal (ex: color verde, color restaurar)")
             
 # Comando logout
         elif comando == "logout":
@@ -573,6 +580,103 @@ def iniciar_pyos():
                     print(f"Erro: '{argumento}' não foi encontrado. Se quiser criar um novo, use o comando 'write'.")
             else:
                 print("Por favor, digite o nome do arquivo. Exemplo: 'edit notas.txt'")
+
+        elif comando == "planilha_criar":
+            if argumento:
+                # Garante que o arquivo tenha a extensão correta
+                if not argumento.endswith('.csv'):
+                    argumento += '.csv'
+                    
+                if os.path.exists(argumento):
+                    print(f"Erro: O arquivo '{argumento}' já existe. Use 'planilha_add' para inserir dados.")
+                else:
+                    print(f"\n--- Criando Planilha: {argumento} ---")
+                    colunas = input("Digite o nome das colunas separados por vírgula (ex: Nome, Idade, Email): ")
+                    
+                    # Limpa os espaços extras em volta dos nomes das colunas
+                    cabecalhos = [c.strip() for c in colunas.split(',')]
+                    
+                    try:
+                        # Abre em modo 'w' para escrever a primeira linha (cabeçalhos)
+                        with open(argumento, 'w', newline='', encoding='utf-8') as f:
+                            writer = csv.writer(f)
+                            writer.writerow(cabecalhos)
+                        print(f"Planilha '{argumento}' criada com as colunas: {', '.join(cabecalhos)}")
+                    except Exception as e:
+                        print(f"Erro ao criar planilha: {e}")
+            else:
+                print("Por favor, digite o nome da planilha. Exemplo: planilha_criar clientes.csv")
+
+        elif comando == "planilha_add":
+            if argumento:
+                if not argumento.endswith('.csv'):
+                    argumento += '.csv'
+                    
+                if os.path.exists(argumento):
+                    try:
+                        # Primeiro, lê o arquivo só para descobrir quais são as colunas
+                        with open(argumento, 'r', encoding='utf-8') as f:
+                            reader = csv.reader(f)
+                            cabecalhos = next(reader, None) # Pega apenas a primeira linha
+                        
+                        if cabecalhos:
+                            print(f"\n--- Adicionando dados em: {argumento} ---")
+                            nova_linha = []
+                            
+                            # Pergunta o valor específico para cada coluna dinamicamente
+                            for coluna in cabecalhos:
+                                valor = input(f"Digite o valor para '{coluna}': ")
+                                nova_linha.append(valor)
+                            
+                            # Agora abre em modo 'a' (append) para colar a nova linha no final
+                            with open(argumento, 'a', newline='', encoding='utf-8') as f:
+                                writer = csv.writer(f)
+                                writer.writerow(nova_linha)
+                            print("Dados adicionados com sucesso!")
+                        else:
+                            print("Erro: A planilha está vazia e não possui colunas definidas.")
+                    except Exception as e:
+                        print(f"Erro ao editar planilha: {e}")
+                else:
+                    print(f"Erro: Planilha '{argumento}' não encontrada. Crie primeiro com 'planilha_criar'.")
+            else:
+                print("Por favor, digite o nome da planilha. Exemplo: planilha_add clientes.csv")
+
+        elif comando == "planilha_ler":
+            if argumento:
+                if not argumento.endswith('.csv'):
+                    argumento += '.csv'
+                    
+                if os.path.exists(argumento):
+                    try:
+                        with open(argumento, 'r', encoding='utf-8') as f:
+                            reader = csv.reader(f)
+                            dados = list(reader) # Transforma tudo numa lista do Python
+                            
+                            if not dados:
+                                print("A planilha está vazia.")
+                            else:
+                                print(f"\n--- Lendo Planilha: {argumento} ---\n")
+                                
+                                # Encontra a maior palavra de cada coluna para alinhar a tabela perfeitamente
+                                tamanhos = [max(len(str(item)) for item in coluna) for coluna in zip(*dados)]
+                                
+                                for i, linha in enumerate(dados):
+                                    # Justifica o texto à esquerda baseado no tamanho máximo da coluna
+                                    linha_formatada = " | ".join(str(item).ljust(tamanho) for item, tamanho in zip(linha, tamanhos))
+                                    print(linha_formatada)
+                                    
+                                    # Imprime uma linha divisória logo abaixo do cabeçalho
+                                    if i == 0:
+                                        print("-" * len(linha_formatada))
+                                        
+                                print("\n--- Fim da Planilha ---")
+                    except Exception as e:
+                        print(f"Erro ao ler planilha: {e}")
+                else:
+                    print(f"Erro: Planilha '{argumento}' não encontrada.")
+            else:
+                print("Por favor, digite o nome da planilha. Exemplo: planilha_ler clientes.csv")
 
 # Comando adduser
         elif comando == "adduser":
