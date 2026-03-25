@@ -113,7 +113,7 @@ def iniciar_pyos():
             print("  list    : Lista os arquivos na pasta atual")
             print("  print   : Repete o que você digitar (ex: print olá mundo)")
             print("  calc    : Uma calculadora simples (ex: calc 5 + 5)")
-            print("  ai      : Inicia uma conversa com a Inteligência Artificial (ex: ia)")
+            print("  ai      : Inicia uma conversa com a Inteligência Artificial (ex: ai)")
 
         elif comando == "help-archives":
             print("\n--- Comandos Disponíveis ---")
@@ -219,54 +219,71 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite uma conta. Exemplo: calc 5 + 5")
 
+# Comando ai
         elif comando == "ai":
-            print("\n" + "="*50)
-            print(" Iniciando conexão com a IA (Google Gemini)...")
-            print(" Digite 'sair' a qualquer momento para voltar ao PyOS.")
-            print("="*50 + "\n")
+            print("\n--- Iniciando Conexão Neural (PyOS AI) ---")
             
-            # Coloque a sua chave de API real aqui dentro das aspas!
-            CHAVE_API = "AIzaSyAPF6tyKxUZ5GXN_QuDjn938aePdpQ0y8g"
-            
-            if CHAVE_API == "AIzaSyAPF6tyKxUZ5GXN_QuDjn938aePdpQ0y8g":
-                print("Erro: Você esqueceu de colocar a sua Chave de API no código!")
-                print("Acesse https://aistudio.google.com/app/apikey para pegar a sua.")
-                continue
+            arquivo_config = "config_db.json"
+            # Carrega as configurações para ver se já temos a chave da API
+            if os.path.exists(arquivo_config):
+                with open(arquivo_config, 'r', encoding='utf-8') as f:
+                    banco_config = json.load(f)
+            else:
+                banco_config = {}
+
+            # Verifica se o usuário atual já salvou uma chave de API
+            chave_api = banco_config.get(f"{usuario}_api_key", "")
+
+            # Se não tem chave, pede para o usuário digitar e salva no arquivo
+            if not chave_api:
+                print("Para usar a IA, você precisa de uma chave gratuita do Google AI Studio.")
+                print("Pegue a sua em: https://aistudio.google.com/app/apikey")
+                chave_api = input("Cole sua Chave de API aqui (ou digite 'sair' para cancelar): ").strip()
+                
+                if chave_api.lower() == 'sair':
+                    continue
+                
+                # Salva a chave atrelada ao usuário
+                banco_config[f"{usuario}_api_key"] = chave_api
+                with open(arquivo_config, 'w', encoding='utf-8') as f:
+                    json.dump(banco_config, f, indent=4)
+                print("Chave salva com sucesso no seu perfil!")
 
             try:
-                # Configura a chave e escolhe o modelo mais rápido atual
-                genai.configure(api_key=CHAVE_API)
+                # Configura a IA com a chave do usuário
+                genai.configure(api_key=chave_api)
+                # Usamos o modelo flash por ser mais rápido para chats de terminal
                 modelo = genai.GenerativeModel('gemini-1.5-flash')
                 
-                # Inicia um chat que tem "memória" da conversa
+                # Inicia o histórico de chat para a IA lembrar do contexto da conversa
                 chat = modelo.start_chat(history=[])
                 
-                # Loop infinito exclusivo para o chat com a IA
+                print("\nConexão estabelecida! Você está conversando com o Assistente PyOS.")
+                print("DICA: Digite ':q' ou 'sair' para encerrar o chat e voltar ao sistema.")
+                print("-" * 65)
+                
+                # Loop infinito do chat
                 while True:
-                    # Usamos uma cor diferente (Ciano) para o seu prompt na IA
-                    print("\033[36m", end="") 
-                    pergunta = input(f"{usuario} (IA)> ").strip()
-                    print("\033[0m", end="") # Restaura a cor
+                    pergunta = input(f"\n[{usuario}] > ")
                     
-                    if pergunta.lower() in ['sair', ':q']:
-                        print("Encerrando módulo de IA... Voltando ao sistema principal.")
+                    if pergunta.strip().lower() in [':q', 'sair']:
+                        print("Encerrando a conexão neural... Voltando ao PyOS.")
                         break
-                        
-                    if not pergunta:
+                    if not pergunta.strip():
                         continue
                         
-                    print("Pensando...\n")
+                    print("[PyOS AI] Pensando...", end="\r")
                     
-                    # Envia a pergunta para a API e recebe a resposta
+                    # Envia a pergunta para a IA e recebe a resposta
                     resposta = chat.send_message(pergunta)
                     
-                    # Imprime a resposta da IA em amarelo para destacar
-                    print("\033[33m" + "Gemini: " + "\033[0m" + resposta.text + "\n")
-                    print("-" * 50)
+                    # Limpa a linha do "Pensando..." e imprime a resposta real
+                    print(" " * 20, end="\r") 
+                    print(f"[PyOS AI] {resposta.text}")
                     
             except Exception as e:
-                print(f"Erro ao tentar se comunicar com a IA: {e}")
-                print("Verifique sua conexão de internet e se a Chave de API está correta.")
+                print(f"\nErro de conexão com a IA: {e}")
+                print("DICA: Se a sua chave estiver errada, delete o arquivo 'config_db.json' para resetar.")
 
 # Comando cd
         elif comando == "cd":
