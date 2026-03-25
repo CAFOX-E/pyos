@@ -96,14 +96,15 @@ def iniciar_pyos():
             
         elif comando == "help":
             print("\n--- Comandos de Ajuda ---")
-            print("  help basics    : Exibe os comandos básicos do programa")
-            print("  help archives  : Exibe os comandos de exploração de arquivos")
-            print("  help config    : Exibe os comandos de configurações de usuários e outros")
+            print("  help-basics    : Exibe os comandos básicos do programa")
+            print("  help-archives  : Exibe os comandos de exploração de arquivos")
+            print("  help-config    : Exibe os comandos de configurações de usuários e outros")
             print("  quit           : Desliga o sistema")
 
         elif comando == "help-basics":
             print("\n--- Comandos Disponíveis ---")
             print("  help    : Mostra esta lista de comandos de ajuda")
+            print("  logout  : Encerra a sessão atual e volta para a tela de login")
             print("  date    : Exibe a data e hora atuais")
             print("  ping    : Testa a conexão de rede com um site ou IP (ex: ping google.com)")
             print("  clear   : Limpa a tela do terminal")
@@ -131,6 +132,20 @@ def iniciar_pyos():
             print("  dltuser : Deleta um usuário do sistema (ex: deluser joao)")
             print("  color   : Muda a cor do terminal (ex: color verde, color restaurar)")
             
+# Comando logout
+        elif comando == "logout":
+            print(f"\nEncerrando a sessão de '{usuario}'...")
+            
+            # Restaura a cor para o padrão (branco/cinza) antes de voltar para a tela inicial
+            print("\033[0m", end="")
+            
+            # Aguarda 1 segundinho para dar uma sensação mais realista de sistema fechando
+            import time
+            time.sleep(1)
+            
+            # Chama a função principal de novo, reiniciando o ciclo de login!
+            return iniciar_pyos()
+
 # Comando date
         elif comando == "date":
             agora = datetime.datetime.now()
