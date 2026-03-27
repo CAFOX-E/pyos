@@ -51,7 +51,7 @@ Improved visualization of files and folders.
   Now you can communicate with the Gemini AI directly from the terminal.
   You will only need to include the requested API key in the code.
 
-# PyOS 0.9 (Server update)
+# PyOS 0.9 (Server, encryption and hardware management update)
   Added two file reading modes for a server (web or ftp)
   - Type the command `server web` or `server ftp` and the program will create a port for the local file-sharing server (LOCAL NETWORK ONLY. Not tested for use outside of it).
   Added file encryption (FILES ONLY)
@@ -60,3 +60,7 @@ Improved visualization of files and folders.
   Added a simple hardware manager.
   - Type the command `status` to view your computer's CPU and RAM usage.
   - You can also use the `devices` command to see which devices are connected to your computer.
+
+# PyOS 1.0 (Games update)
+  Added 3 games to the terminal for simple entertainment.
+  - Type `play`, and you'll have 3 different mini-games: "Guess the Number", "Rock, Paper, Scissors", and "Hangman".
