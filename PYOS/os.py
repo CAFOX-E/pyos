@@ -295,6 +295,16 @@ def iniciar_pyos():
                 
                 if escolha == '0':
                     print("A sair do Salão de Jogos. De volta ao trabalho!")
+                    
+                    # --- NOVO: LIMPEZA DE ARQUIVOS TEMPORÁRIOS ---
+                    arquivo_dicionario = "dicionario_br.txt"
+                    if os.path.exists(arquivo_dicionario):
+                        try:
+                            os.remove(arquivo_dicionario)
+                            print("[Sistema] Dicionário temporário apagado. Pasta limpa!")
+                        except Exception as e:
+                            pass
+                    # ---------------------------------------------
                     break
                     
                 elif escolha == '1':
