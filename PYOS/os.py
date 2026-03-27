@@ -10,6 +10,9 @@ import csv
 import math
 import re
 import google.generativeai as genai
+import http.server
+import socketserver
+import socket
 
 def limpar_tela():
     # Limpa a tela dependendo do sistema operacional real do usuário
@@ -66,9 +69,9 @@ def iniciar_pyos():
 
     # Dicionário de cores para o carregamento inicial
     cores_iniciais = {
-        "vermelho": "\033[31m", "verde": "\033[32m", "amarelo": "\033[33m",
-        "azul": "\033[34m", "roxo": "\033[35m", "ciano": "\033[36m",
-        "branco": "\033[37m", "restaurar": "\033[0m"
+        "red": "\033[31m", "green": "\033[32m", "yellow": "\033[33m",
+        "blue": "\033[34m", "purple": "\033[35m", "cyan": "\033[36m",
+        "white": "\033[37m", "default": "\033[0m"
     }
     
     # Pega a cor salva do usuário (ou usa 'restaurar' se for a primeira vez)
@@ -109,26 +112,27 @@ def iniciar_pyos():
 
         elif comando == "help-basics":
             print("\n--- Comandos Disponíveis ---")
-            print("  help        : Mostra esta lista de comandos de ajuda")
-            print("  logout      : Encerra a sessão atual e volta para a tela de login")
-            print("  date        : Exibe a data e hora atuais")
-            print("  ping        : Testa a conexão de rede com um site ou IP (ex: ping google.com)")
-            print("  clear       : Limpa a tela do terminal")
-            print("  list        : Lista os arquivos na pasta atual")
-            print("  print       : Repete o que você digitar (ex: print olá mundo)")
-            print("  calc        : Uma calculadora simples (ex: calc 5 + 5)")
-            print("  ai          : Inicia uma conversa com a Inteligência Artificial (ex: ai)")
+            print("  help           : Mostra esta lista de comandos de ajuda")
+            print("  logout         : Encerra a sessão atual e volta para a tela de login")
+            print("  date           : Exibe a data e hora atuais")
+            print("  ping           : Testa a conexão de rede com um site ou IP (ex: ping google.com)")
+            print("  clear          : Limpa a tela do terminal")
+            print("  list           : Lista os arquivos na pasta atual")
+            print("  print          : Repete o que você digitar (ex: print Hello World!)")
+            print("  calc           : Uma calculadora simples (ex: calc 5 + 5)")
+            print("  ai             : Inicia uma conversa com a Inteligência Artificial (ex: ai)")
+            print("  server         : Inicia um servidor Wi-Fi para compartilhar arquivos (ex: server start)")
 
         elif comando == "help-archives":
             print("\n--- Comandos Disponíveis ---")
-            print("  cd          : Navega entre as pastas (ex: cd nome_da_pasta ou cd .. para voltar)")
-            print("  search      : Busca arquivos e pastas pelo nome (ex: search projeto)")
-            print("  mkdir       : Cria uma nova pasta (ex: mkdir nova_pasta)")
-            print("  rmdir       : Deleta uma pasta (ex: rmdir pasta_antiga)")
-            print("  open        : Executa um arquivo com o programa padrão do seu computador (ex: open foto.jpg)")
-            print("  delete      : Deleta um arquivo específico (ex: delete texto.txt)")
-            print("  empty       : Apaga TODOS os arquivos de uma pasta de uma vez (ex: empty minha_pasta)")
-            print("  disk        : Analisa o espaço de armazenamento do disco atual")
+            print("  cd             : Navega entre as pastas (ex: cd nome_da_pasta ou cd .. para voltar)")
+            print("  search         : Busca arquivos e pastas pelo nome (ex: search projeto)")
+            print("  mkdir          : Cria uma nova pasta (ex: mkdir nova_pasta)")
+            print("  rmdir          : Deleta uma pasta (ex: rmdir pasta_antiga)")
+            print("  open           : Executa um arquivo com o programa padrão do seu computador (ex: open foto.jpg)")
+            print("  delete         : Deleta um arquivo específico (ex: delete texto.txt)")
+            print("  empty          : Apaga TODOS os arquivos de uma pasta de uma vez (ex: empty minha_pasta)")
+            print("  disk           : Analisa o espaço de armazenamento do disco atual")
             
         elif comando == "help-office":
             print("  txt_read    : Exibe o texto de um arquivo no terminal (ex: read notas.txt)")
@@ -141,8 +145,8 @@ def iniciar_pyos():
         elif comando == "help-config":
             print("\n--- Comandos Disponíveis ---")
             print("  adduser     : Adiciona um novo usuário ao sistema (ex: adduser maria)")
-            print("  dltuser     : Deleta um usuário do sistema (ex: deluser joao)")
-            print("  color       : Muda a cor do terminal (ex: color verde, color restaurar)")
+            print("  dltuser     : Deleta um usuário do sistema (ex: dltuser joao)")
+            print("  color       : Muda a cor do terminal (ex: color green, color default)")
             
 # Comando logout
         elif comando == "logout":
@@ -344,6 +348,49 @@ def iniciar_pyos():
             except Exception as e:
                 print(f"\nErro de conexão com a IA: {e}")
                 print("DICA: Se a sua chave estiver inválida, abra o arquivo 'config_db.json' e apague a linha da sua API key para o sistema pedir uma nova.")
+
+# Comando server
+        elif comando == "server":
+            if argumento == "start":
+                PORTA = 8000
+                
+                # Truque para descobrir qual é o número IP da sua máquina na rede Wi-Fi local
+                try:
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    s.connect(("8.8.8.8", 80)) # Tenta "olhar" para a internet para ver qual a porta de saída
+                    ip_local = s.getsockname()[0]
+                    s.close()
+                except Exception:
+                    ip_local = "127.0.0.1" # Se estiver sem internet, usa o IP local padrão
+
+                # Configura o tipo de servidor (um servidor de arquivos simples do Python)
+                Handler = http.server.SimpleHTTPRequestHandler
+                
+                # Permite que a porta seja reutilizada caso você ligue e desligue o servidor várias vezes
+                socketserver.TCPServer.allow_reuse_address = True
+                
+                try:
+                    # Inicia o servidor na porta 8000
+                    with socketserver.TCPServer(("", PORTA), Handler) as httpd:
+                        print(f"\n--- Servidor de Arquivos PyOS Iniciado ---")
+                        print(f"Compartilhando a pasta: {os.getcwd()}")
+                        print(f"Acesse no navegador do seu celular ou outro PC:")
+                        print(f"🔗 http://{ip_local}:{PORTA}")
+                        print("------------------------------------------")
+                        print("Aviso: O PyOS ficará pausado segurando o servidor.")
+                        print("Pressione 'Ctrl + C' no teclado para desligar e voltar ao terminal.")
+                        
+                        # Mantém o servidor rodando infinitamente até você mandar parar
+                        httpd.serve_forever()
+                        
+                except KeyboardInterrupt:
+                    # Captura o momento em que você aperta Ctrl + C
+                    print("\n\nSinal de interrupção recebido. Desligando o servidor...")
+                    print("Servidor desligado com sucesso. Voltando ao PyOS.")
+                except Exception as e:
+                    print(f"\nErro ao iniciar o servidor: {e}")
+            else:
+                print("Por favor, use o comando correto. Exemplo: server start")
 
 # Comando cd
         elif comando == "cd":
@@ -780,19 +827,19 @@ def iniciar_pyos():
                     except Exception as e:
                         print(f"Erro ao gerenciar usuários: {e}")
             else:
-                print("Por favor, digite o nome do usuário que deseja deletar. Exemplo: deluser visitante")
+                print("Por favor, digite o nome do usuário que deseja deletar. Exemplo: dltuser visitante")
 
 # Comando color
         elif comando == "color":
             cores = {
-                "vermelho": "\033[31m",
-                "verde": "\033[32m",
-                "amarelo": "\033[33m",
-                "azul": "\033[34m",
-                "roxo": "\033[35m",
-                "ciano": "\033[36m",
-                "branco": "\033[37m",
-                "restaurar": "\033[0m"
+                "red": "\033[31m",
+                "green": "\033[32m",
+                "yellow": "\033[33m",
+                "blue": "\033[34m",
+                "purple": "\033[35m",
+                "cyan": "\033[36m",
+                "white": "\033[37m",
+                "default": "\033[0m"
             }
             
             if argumento:
@@ -802,7 +849,7 @@ def iniciar_pyos():
                     # Aplica a cor na tela
                     print(cores[cor_escolhida], end="")
                     
-                    if cor_escolhida == "restaurar":
+                    if cor_escolhida == "default":
                         print("Cor restaurada para o padrão do sistema.")
                     else:
                         print(f"Cor alterada para {cor_escolhida}! Configuração salva.")
@@ -823,9 +870,9 @@ def iniciar_pyos():
                     # -------------------------------------------------------
                 else:
                     print("Cor inválida. As opções são:")
-                    print(" -> vermelho, verde, amarelo, azul, roxo, ciano, branco, restaurar")
+                    print(" -> red, green, yellow, blue, purple, cyan, white e default")
             else:
-                print("Por favor, digite uma cor. Exemplo: 'color verde'")
+                print("Por favor, digite uma cor. Exemplo: 'color green'")
 
         else:
             print(f"Comando '{comando}' não reconhecido. Digite 'help' para ver a lista.")
