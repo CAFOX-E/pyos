@@ -20,6 +20,7 @@ import psutil
 import random
 import urllib.request
 import unicodedata
+from PIL import Image
 
 def limpar_tela():
     # Limpa a tela dependendo do sistema operacional real do usuário
@@ -150,6 +151,7 @@ def iniciar_pyos():
             print("  csv_write      : Cria uma nova planilha (ex: planilha_criar dados.csv)")
             print("  csv_add        : Adiciona uma linha de dados à planilha (ex: planilha_add dados.csv)")
             print("  csv_read       : Lê e exibe uma planilha em formato de tabela (ex: planilha_ler dados.csv)")
+            print("  open_image     : Abre e desenha uma imagem direto no terminal (ex: imagem foto.jpg)")
 
         elif comando == "help-config":
             print("\n--- Comandos Disponíveis ---")
@@ -1015,6 +1017,49 @@ def iniciar_pyos():
                     print(f"Erro: Planilha '{argumento}' não encontrada.")
             else:
                 print("Por favor, digite o nome da planilha. Exemplo: planilha_ler clientes.csv")
+
+# Comando open_image
+        elif comando == "open_image":
+            if argumento:
+                if os.path.exists(argumento):
+                    try:
+                        # 1. Abre a imagem e converte para o formato RGB padrão
+                        img = Image.open(argumento)
+                        img = img.convert("RGB")
+                        
+                        # 2. Define a largura máxima (em "pixels/caracteres") para caber no terminal
+                        largura_max = 60 
+                        
+                        # 3. Calcula a nova altura mantendo a proporção da imagem.
+                        # Multiplicamos por 0.5 porque os caracteres do terminal são 2x mais altos que largos!
+                        proporcao = (img.height / img.width)
+                        altura_nova = int(largura_max * proporcao * 0.5)
+                        
+                        # 4. Encolhe a imagem
+                        img = img.resize((largura_max, altura_nova))
+                        
+                        print(f"\n--- Exibindo: {argumento} ---")
+                        
+                        # 5. Varre a imagem linha por linha, pixel por pixel
+                        for y in range(altura_nova):
+                            linha_terminal = ""
+                            for x in range(largura_max):
+                                r, g, b = img.getpixel((x, y))
+                                
+                                # A MÁGICA: Código ANSI True Color para pintar o fundo do texto com o RGB do pixel
+                                # Colocamos dois espaços em branco '  ' para formar o bloco e depois o '\033[0m' para resetar a cor
+                                linha_terminal += f"\033[48;2;{r};{g};{b}m  \033[0m"
+                                
+                            print(linha_terminal) # Imprime a linha inteira da imagem
+                            
+                        print("-" * (largura_max * 2))
+                        
+                    except Exception as e:
+                        print(f"Erro ao processar a imagem. Tem certeza de que é um arquivo de imagem válido? Erro: {e}")
+                else:
+                    print(f"Erro: O arquivo '{argumento}' não foi encontrado.")
+            else:
+                print("Por favor, digite o nome da imagem. Exemplo: imagem logo.png")
 
 # Comando disk
         elif comando == "disk":
