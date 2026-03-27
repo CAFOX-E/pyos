@@ -1,4 +1,4 @@
-# PyOS 0.7
+# PyOS 1.0
 My """operational system""" made in python
 
 # PyOS 0.1 (base)
