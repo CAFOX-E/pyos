@@ -13,6 +13,11 @@ import google.generativeai as genai
 import http.server
 import socketserver
 import socket
+import base64
+import hashlib
+from cryptography.fernet import Fernet
+import psutil
+import random
 
 def limpar_tela():
     # Limpa a tela dependendo do sistema operacional real do usuário
@@ -75,7 +80,7 @@ def iniciar_pyos():
     }
     
     # Pega a cor salva do usuário (ou usa 'restaurar' se for a primeira vez)
-    cor_salva = banco_cores.get(usuario, "restaurar")
+    cor_salva = banco_cores.get(usuario, "default")
     print(cores_iniciais[cor_salva], end="")
     # ------------------------------------------------------
 
@@ -120,8 +125,9 @@ def iniciar_pyos():
             print("  list           : Lista os arquivos na pasta atual")
             print("  print          : Repete o que você digitar (ex: print Hello World!)")
             print("  calc           : Uma calculadora simples (ex: calc 5 + 5)")
+            print("  play           : Abre o menu de mini-jogos do PyOS para relaxar")
             print("  ai             : Inicia uma conversa com a Inteligência Artificial (ex: ai)")
-            print("  server         : Inicia um servidor Wi-Fi para compartilhar arquivos (ex: server start)")
+            print("  server         : Inicia o compartilhamento (ex: server web OU server ftp)")
 
         elif comando == "help-archives":
             print("\n--- Comandos Disponíveis ---")
@@ -132,21 +138,25 @@ def iniciar_pyos():
             print("  open           : Executa um arquivo com o programa padrão do seu computador (ex: open foto.jpg)")
             print("  delete         : Deleta um arquivo específico (ex: delete texto.txt)")
             print("  empty          : Apaga TODOS os arquivos de uma pasta de uma vez (ex: empty minha_pasta)")
-            print("  disk           : Analisa o espaço de armazenamento do disco atual")
+            print("  lock           : Criptografa um arquivo com senha (ex: lock segredo.txt)")
+            print("  unlock         : Descriptografa um arquivo bloqueado (ex: unlock segredo.txt.lock)")
             
         elif comando == "help-office":
-            print("  txt_read    : Exibe o texto de um arquivo no terminal (ex: read notas.txt)")
-            print("  txt_write   : Cria/edita um arquivo de texto (ex: write notas.txt)")
-            print("  txt_edit    : Edita um arquivo de texto já existente (ex: edit notas.txt)")
-            print("  csv_write   : Cria uma nova planilha (ex: planilha_criar dados.csv)")
-            print("  csv_add     : Adiciona uma linha de dados à planilha (ex: planilha_add dados.csv)")
-            print("  csv_read    : Lê e exibe uma planilha em formato de tabela (ex: planilha_ler dados.csv)")
+            print("  txt_read       : Exibe o texto de um arquivo no terminal (ex: read notas.txt)")
+            print("  txt_write      : Cria/edita um arquivo de texto (ex: write notas.txt)")
+            print("  txt_edit       : Edita um arquivo de texto já existente (ex: edit notas.txt)")
+            print("  csv_write      : Cria uma nova planilha (ex: planilha_criar dados.csv)")
+            print("  csv_add        : Adiciona uma linha de dados à planilha (ex: planilha_add dados.csv)")
+            print("  csv_read       : Lê e exibe uma planilha em formato de tabela (ex: planilha_ler dados.csv)")
 
         elif comando == "help-config":
             print("\n--- Comandos Disponíveis ---")
-            print("  adduser     : Adiciona um novo usuário ao sistema (ex: adduser maria)")
-            print("  dltuser     : Deleta um usuário do sistema (ex: dltuser joao)")
-            print("  color       : Muda a cor do terminal (ex: color green, color default)")
+            print("  disk           : Analisa o espaço de armazenamento do disco atual")
+            print("  status         : Mostra o uso de CPU, RAM e Bateria em tempo real")
+            print("  devices        : Lista os adaptadores de rede e dispositivos USB conectados")
+            print("  adduser        : Adiciona um novo usuário ao sistema (ex: adduser maria)")
+            print("  dltuser        : Deleta um usuário do sistema (ex: dltuser joao)")
+            print("  color          : Muda a cor do terminal (ex: color green, color default)")
             
 # Comando logout
         elif comando == "logout":
@@ -269,6 +279,115 @@ def iniciar_pyos():
                     resultado = resolver_conta(conta)
                     print(f" = {resultado}")
 
+# Comando play
+        elif comando == "play":
+            while True:
+                print("\n=== 🕹️ Salão de Jogos PyOS ===")
+                print("1. Adivinha o Número")
+                print("2. Pedra, Papel e Tesoura")
+                print("3. Jogo da Forca")
+                print("0. Sair dos jogos")
+                print("================================")
+                
+                escolha = input("Escolha um jogo (0, 1, 2 ou 3): ").strip()
+                
+                if escolha == '0':
+                    print("A sair do Salão de Jogos. De volta ao trabalho!")
+                    break
+                    
+                elif escolha == '1':
+                    print("\n--- Adivinha o Número ---")
+                    numero_secreto = random.randint(1, 100)
+                    tentativas = 0
+                    print("O PyOS pensou num número entre 1 e 100. Tenta adivinhar!")
+                    
+                    while True:
+                        palpite = input("O teu palpite (ou ':q' para sair): ").strip()
+                        if palpite.lower() == ':q': break
+                        if not palpite.isdigit(): continue
+                            
+                        palpite = int(palpite)
+                        tentativas += 1
+                        
+                        if palpite < numero_secreto: print("🔺 Mais alto!")
+                        elif palpite > numero_secreto: print("🔻 Mais baixo!")
+                        else:
+                            print(f"🎉 Parabéns! Acertaste em cheio no {numero_secreto} com {tentativas} tentativa(s)!")
+                            break
+                            
+                elif escolha == '2':
+                    print("\n--- Pedra, Papel e Tesoura ---")
+                    opcoes = ["pedra", "papel", "tesoura"]
+                    
+                    while True:
+                        jogada = input("Escolhe: pedra, papel, tesoura (ou ':q' para sair): ").strip().lower()
+                        if jogada == ':q': break
+                        if jogada not in opcoes: continue
+                            
+                        pc_jogada = random.choice(opcoes)
+                        print(f"💻 O computador escolheu: {pc_jogada.upper()}")
+                        
+                        if jogada == pc_jogada: print("🤝 Empate!")
+                        elif (jogada == 'pedra' and pc_jogada == 'tesoura') or \
+                             (jogada == 'papel' and pc_jogada == 'pedra') or \
+                             (jogada == 'tesoura' and pc_jogada == 'papel'):
+                            print("🏆 Ganhaste esta ronda!")
+                        else: print("💀 Perdeste! O computador foi mais esperto.")
+                        
+                # --- NOVO: JOGO DA FORCA ---
+                elif escolha == '3':
+                    print("\n--- Jogo da Forca ---")
+                    palavras = ["python", "computador", "terminal", "hacker", "sistema", "teclado", "internet", "servidor", "criptografia"]
+                    palavra_secreta = random.choice(palavras)
+                    letras_descobertas = []
+                    erros_permitidos = 6
+                    
+                    print("DICA: A palavra está relacionada com tecnologia!")
+                    
+                    while True:
+                        # Monta a palavra escondida com os traços
+                        palavra_oculta = ""
+                        for letra in palavra_secreta:
+                            if letra in letras_descobertas:
+                                palavra_oculta += letra + " "
+                            else:
+                                palavra_oculta += "_ "
+                                
+                        print(f"\nPalavra: {palavra_oculta}")
+                        print(f"Tentativas restantes: {erros_permitidos}")
+                        
+                        # Verifica se ganhou
+                        if "_" not in palavra_oculta:
+                            print("🎉 Parabéns! Escapaste da forca!")
+                            break
+                            
+                        # Verifica se perdeu
+                        if erros_permitidos == 0:
+                            print(f"💀 Fim de jogo! Foste enforcado. A palavra era: {palavra_secreta.upper()}")
+                            break
+                            
+                        letra_digitada = input("Digita uma letra (ou ':q' para sair): ").strip().lower()
+                        
+                        if letra_digitada == ':q': break
+                        
+                        if len(letra_digitada) != 1 or not letra_digitada.isalpha():
+                            print("Por favor, digita apenas uma letra válida.")
+                            continue
+                            
+                        if letra_digitada in letras_descobertas:
+                            print("Já tentaste essa letra! Tenta outra.")
+                            continue
+                            
+                        letras_descobertas.append(letra_digitada)
+                        
+                        if letra_digitada in palavra_secreta:
+                            print("✅ Boa! Acertaste numa letra.")
+                        else:
+                            print("❌ Ops! Essa letra não existe na palavra.")
+                            erros_permitidos -= 1
+                else:
+                    print("Escolha inválida. Tenta novamente.")
+
 # Comando ai
         elif comando == "ai":
             print("\n--- Iniciando Conexão Neural (PyOS AI) ---")
@@ -351,46 +470,78 @@ def iniciar_pyos():
 
 # Comando server
         elif comando == "server":
-            if argumento == "start":
-                PORTA = 8000
-                
-                # Truque para descobrir qual é o número IP da sua máquina na rede Wi-Fi local
+            if argumento in ["web", "ftp"]:
+                # Truque para pegar o IP local
                 try:
+                    import socket
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    s.connect(("8.8.8.8", 80)) # Tenta "olhar" para a internet para ver qual a porta de saída
+                    s.connect(("8.8.8.8", 80))
                     ip_local = s.getsockname()[0]
                     s.close()
                 except Exception:
-                    ip_local = "127.0.0.1" # Se estiver sem internet, usa o IP local padrão
+                    ip_local = "127.0.0.1"
 
-                # Configura o tipo de servidor (um servidor de arquivos simples do Python)
-                Handler = http.server.SimpleHTTPRequestHandler
-                
-                # Permite que a porta seja reutilizada caso você ligue e desligue o servidor várias vezes
-                socketserver.TCPServer.allow_reuse_address = True
-                
-                try:
-                    # Inicia o servidor na porta 8000
-                    with socketserver.TCPServer(("", PORTA), Handler) as httpd:
-                        print(f"\n--- Servidor de Arquivos PyOS Iniciado ---")
-                        print(f"Compartilhando a pasta: {os.getcwd()}")
-                        print(f"Acesse no navegador do seu celular ou outro PC:")
-                        print(f"🔗 http://{ip_local}:{PORTA}")
+                # --- OPÇÃO 1: SERVIDOR WEB (Navegador) ---
+                if argumento == "web":
+                    import http.server
+                    import socketserver
+                    PORTA = 8000
+                    Handler = http.server.SimpleHTTPRequestHandler
+                    socketserver.TCPServer.allow_reuse_address = True
+                    
+                    try:
+                        with socketserver.TCPServer(("", PORTA), Handler) as httpd:
+                            print(f"\n--- Servidor WEB PyOS Iniciado ---")
+                            print(f"🔗 Acesse no navegador: http://{ip_local}:{PORTA}")
+                            print("Pressione 'Ctrl + C' no terminal para desligar.")
+                            httpd.serve_forever()
+                    except KeyboardInterrupt:
+                        print("\nServidor WEB desligado com sucesso.")
+                    except Exception as e:
+                        print(f"\nErro no servidor WEB: {e}")
+
+                # --- OPÇÃO 2: SERVIDOR FTP (Explorador de Arquivos) ---
+                elif argumento == "ftp":
+                    try:
+                        # Importa as ferramentas do pyftpdlib
+                        from pyftpdlib.authorizers import DummyAuthorizer
+                        from pyftpdlib.handlers import FTPHandler
+                        from pyftpdlib.servers import FTPServer
+                        
+                        PORTA_FTP = 2121
+                        
+                        # Configura as permissões (lê e escreve)
+                        authorizer = DummyAuthorizer()
+                        # 'elradfmw' significa permissão total: ler, escrever, deletar, criar pastas
+                        authorizer.add_anonymous(os.getcwd(), perm='elradfmw')
+                        
+                        handler = FTPHandler
+                        handler.authorizer = authorizer
+                        
+                        # Desliga as mensagens chatas de log do FTP para não poluir sua tela
+                        import logging
+                        logging.getLogger("pyftpdlib").setLevel(logging.WARNING)
+                        
+                        server = FTPServer((ip_local, PORTA_FTP), handler)
+                        
+                        print(f"\n--- Servidor FTP PyOS Iniciado ---")
+                        print(f"Pasta compartilhada: {os.getcwd()}")
+                        print(f"Abra o Explorador de Arquivos (Windows) e digite na barra de endereços lá em cima:")
+                        print(f"🔗 ftp://{ip_local}:{PORTA_FTP}")
                         print("------------------------------------------")
-                        print("Aviso: O PyOS ficará pausado segurando o servidor.")
-                        print("Pressione 'Ctrl + C' no teclado para desligar e voltar ao terminal.")
+                        print("Pressione 'Ctrl + C' no terminal para desligar.")
                         
-                        # Mantém o servidor rodando infinitamente até você mandar parar
-                        httpd.serve_forever()
+                        server.serve_forever()
                         
-                except KeyboardInterrupt:
-                    # Captura o momento em que você aperta Ctrl + C
-                    print("\n\nSinal de interrupção recebido. Desligando o servidor...")
-                    print("Servidor desligado com sucesso. Voltando ao PyOS.")
-                except Exception as e:
-                    print(f"\nErro ao iniciar o servidor: {e}")
+                    except ImportError:
+                        print("Erro: A biblioteca 'pyftpdlib' não está instalada.")
+                        print("Abra o terminal do seu PC e digite: pip install pyftpdlib")
+                    except KeyboardInterrupt:
+                        print("\nServidor FTP desligado com sucesso. Voltando ao PyOS.")
+                    except Exception as e:
+                        print(f"\nErro no servidor FTP: {e}")
             else:
-                print("Por favor, use o comando correto. Exemplo: server start")
+                print("Por favor, escolha o modo. Exemplo: server web OU server ftp")
 
 # Comando cd
         elif comando == "cd":
@@ -548,23 +699,82 @@ def iniciar_pyos():
             else:
                 print("Por favor, digite o nome da pasta. Exemplo: 'empty arquivos_velhos'")
                 
-# Comando disk
-        elif comando == "disk":
-            try:
-                # Analisa o disco com base no diretório em que estamos
-                caminho_atual = os.getcwd()
-                total, usado, livre = shutil.disk_usage(caminho_atual)
-                
-                # Converte os valores de bytes para Gigabytes (GB)
-                gb = 1024 ** 3
-                
-                print(f"\nAnálise de Armazenamento do disco atual:")
-                print(f" -> Espaço Total : {total // gb} GB")
-                print(f" -> Espaço Usado : {usado // gb} GB")
-                print(f" -> Espaço Livre : {livre // gb} GB")
-            except Exception as e:
-                print(f"Erro ao analisar o disco: {e}")
-                
+# Comando lock  
+        elif comando == "lock":
+            if argumento:
+                if os.path.exists(argumento):
+                    senha = input(f"Crie uma senha para trancar '{argumento}': ")
+                    
+                    try:
+                        # 1. Transforma a sua senha comum numa chave criptográfica forte de 32 bytes
+                        chave = base64.urlsafe_b64encode(hashlib.sha256(senha.encode('utf-8')).digest())
+                        fernet = Fernet(chave)
+                        
+                        # 2. Lê os dados originais do arquivo
+                        with open(argumento, 'rb') as f:
+                            dados_originais = f.read()
+                            
+                        # 3. Embaralha tudo usando a chave
+                        dados_criptografados = fernet.encrypt(dados_originais)
+                        
+                        # 4. Salva o arquivo com um novo nome ".lock" e apaga o original
+                        novo_nome = argumento + ".lock"
+                        with open(novo_nome, 'wb') as f:
+                            f.write(dados_criptografados)
+                            
+                        os.remove(argumento) # Apaga o arquivo desprotegido
+                        print(f"🔒 Sucesso! Arquivo protegido salvo como '{novo_nome}'.")
+                        print("ATENÇÃO: Se esquecer a senha, o arquivo será perdido para sempre!")
+                        
+                    except Exception as e:
+                        print(f"Erro ao criptografar: {e}")
+                else:
+                    print(f"Erro: Arquivo '{argumento}' não encontrado.")
+            else:
+                print("Por favor, digite o nome do arquivo. Exemplo: travar diario.txt")
+
+# Comando unlock
+        elif comando == "unlock":
+            if argumento:
+                if os.path.exists(argumento):
+                    if not argumento.endswith('.lock'):
+                        print("Aviso: O arquivo não tem a extensão '.lock'. Tem certeza de que está criptografado?")
+                        
+                    senha = input(f"Digite a senha para destravar '{argumento}': ")
+                    
+                    try:
+                        # 1. Recria a chave usando a senha que você digitou
+                        chave = base64.urlsafe_b64encode(hashlib.sha256(senha.encode('utf-8')).digest())
+                        fernet = Fernet(chave)
+                        
+                        # 2. Lê os dados trancados
+                        with open(argumento, 'rb') as f:
+                            dados_criptografados = f.read()
+                            
+                        # 3. Tenta desembaralhar (se a senha estiver errada, a matemática falha e cai no except)
+                        dados_originais = fernet.decrypt(dados_criptografados)
+                        
+                        # 4. Remove a extensão ".lock" do nome para voltar ao normal
+                        nome_original = argumento.replace('.lock', '')
+                        # Se por acaso o arquivo não tivesse .lock no nome, adiciona um sufixo para não sobrescrever errado
+                        if nome_original == argumento: 
+                            nome_original = "destravado_" + argumento
+                            
+                        # 5. Salva o arquivo legível e apaga a versão trancada
+                        with open(nome_original, 'wb') as f:
+                            f.write(dados_originais)
+                            
+                        os.remove(argumento)
+                        print(f"🔓 Sucesso! Arquivo destravado e salvo como '{nome_original}'.")
+                        
+                    except Exception:
+                        # O erro padrão da biblioteca para senha errada é o InvalidToken, mas tratamos de forma geral
+                        print("❌ Erro: Senha incorreta ou arquivo corrompido! Acesso negado.")
+                else:
+                    print(f"Erro: Arquivo '{argumento}' não encontrado.")
+            else:
+                print("Por favor, digite o nome do arquivo. Exemplo: destravar diario.txt.lock")
+
 # Comando read
         elif comando == "txt_read":
             if argumento:
@@ -766,6 +976,117 @@ def iniciar_pyos():
                     print(f"Erro: Planilha '{argumento}' não encontrada.")
             else:
                 print("Por favor, digite o nome da planilha. Exemplo: planilha_ler clientes.csv")
+
+# Comando disk
+        elif comando == "disk":
+            try:
+                # Analisa o disco com base no diretório em que estamos
+                caminho_atual = os.getcwd()
+                total, usado, livre = shutil.disk_usage(caminho_atual)
+                
+                # Converte os valores de bytes para Gigabytes (GB)
+                gb = 1024 ** 3
+                
+                print(f"\nAnálise de Armazenamento do disco atual:")
+                print(f" -> Espaço Total : {total // gb} GB")
+                print(f" -> Espaço Usado : {usado // gb} GB")
+                print(f" -> Espaço Livre : {livre // gb} GB")
+            except Exception as e:
+                print(f"Erro ao analisar o disco: {e}")
+
+# Comando status
+        elif comando == "status":
+            print("\n--- Monitor de Hardware PyOS ---")
+            print("Analisando sensores do sistema... (aguarde 1 segundo)\n")
+            
+            try:
+                # Função interna para desenhar a barra de progresso visual
+                def gerar_barra(porcentagem, tamanho=30):
+                    preenchido = int(tamanho * porcentagem // 100)
+                    vazio = tamanho - preenchido
+                    return f"[{'█' * preenchido}{'-' * vazio}]"
+
+                # 1. Lê a CPU (interval=1 faz o Python esperar 1 segundo para medir a velocidade real)
+                cpu_uso = psutil.cpu_percent(interval=1)
+                
+                # 2. Lê a Memória RAM
+                memoria = psutil.virtual_memory()
+                ram_uso = memoria.percent
+                ram_total = memoria.total / (1024**3) # Converte de bytes para Gigabytes (GB)
+                ram_usada = memoria.used / (1024**3)
+                
+                # 3. Lê a Bateria (se for um notebook)
+                bateria = psutil.sensors_battery()
+
+                # Imprime os resultados com as barras
+                print(f"CPU: {gerar_barra(cpu_uso)} {cpu_uso}%")
+                print(f"RAM: {gerar_barra(ram_uso)} {ram_uso}% ({ram_usada:.1f}GB / {ram_total:.1f}GB)")
+                
+                # Verifica se o computador tem sensor de bateria
+                if bateria:
+                    status_tomada = "🔌 Conectado" if bateria.power_plugged else "🔋 Na Bateria"
+                    print(f"BAT: {gerar_barra(bateria.percent)} {bateria.percent}% ({status_tomada})")
+                else:
+                    print("BAT: [ Sensor de bateria não detectado (Computador de Mesa?) ]")
+                    
+                print("-" * 32)
+                
+            except Exception as e:
+                print(f"Erro ao ler os sensores de hardware: {e}")
+
+# Comando devices
+        elif comando == "devices":
+            print("\n--- Gerenciador de Dispositivos PyOS ---")
+            
+            # 1. Lista Placas e Adaptadores de Rede
+            print("🌐 Adaptadores de Rede:")
+            try:
+                redes = psutil.net_if_addrs()
+                for placa in redes.keys():
+                    # Ignora adaptadores virtuais estranhos do Windows para manter a lista limpa
+                    if "Loopback" not in placa and "Pseudo" not in placa:
+                        print(f"   [+] {placa}")
+            except Exception as e:
+                print(f"   Erro ao ler rede: {e}")
+
+            print("\n🔌 Dispositivos USB Conectados:")
+            print("   (Lendo portas, aguarde alguns segundos...)\n")
+            
+            # 2. Lista Dispositivos USB usando comandos nativos do sistema
+            try:
+                dispositivos_usb = []
+                
+                if sys.platform == 'win32':
+                    # Pede para o PowerShell do Windows listar apenas os USBs ativos e com nome
+                    cmd = ['powershell', '-Command', "Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match '^USB' -and $_.FriendlyName } | Select-Object -ExpandProperty FriendlyName"]
+                    # errors='ignore' evita que caracteres com acento quebrem o código
+                    output = subprocess.check_output(cmd, encoding='cp850', errors='ignore')
+                    
+                    # Limpa a lista e remove os "Hubs" genéricos que o Windows duplica
+                    linhas = [linha.strip() for linha in output.split('\n') if linha.strip() and "Hub" not in linha]
+                    dispositivos_usb = list(set(linhas)) # set() remove duplicatas
+                    
+                elif sys.platform == 'linux':
+                    # Usa o comando lsusb do Linux
+                    output = subprocess.check_output(['lsusb'], text=True)
+                    dispositivos_usb = [linha.split(':', 2)[-1].strip() for linha in output.split('\n') if linha.strip()]
+                    
+                elif sys.platform == 'darwin':
+                    # Usa o system_profiler do Mac
+                    output = subprocess.check_output(['system_profiler', 'SPUSBDataType'], text=True)
+                    dispositivos_usb = [linha.strip().replace(':', '') for linha in output.split('\n') if linha.startswith('        ') and ':' in linha and '0x' not in linha]
+                
+                # Imprime os resultados encontrados
+                if dispositivos_usb:
+                    for d in dispositivos_usb:
+                        print(f"   [USB] {d}")
+                else:
+                    print("   Nenhum dispositivo USB nomeado encontrado.")
+                    
+            except Exception as e:
+                print(f"   [Erro ao ler portas USB: O sistema bloqueou a varredura]")
+                
+            print("-" * 42)
 
 # Comando adduser
         elif comando == "adduser":
