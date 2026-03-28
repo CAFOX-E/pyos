@@ -138,8 +138,9 @@ def iniciar_pyos():
             print("  calc           : Uma calculadora simples (ex: calc 5 + 5)")
             print("  play           : Abre o menu de mini-jogos do PyOS para relaxar")
             print("  task           : Gerencia as suas tarefas diárias (ex: task add, task read, task ok)")
-            print("  ai             : Inicia uma conversa com a Inteligência Artificial (ex: ai)")
-            print("  server         : Inicia o compartilhamento (ex: server web OU server ftp)")
+            print("  banner         : Gera um letreiro gigante em ASCII art (ex: banner PyOS)")
+            print("  listen         : Abre uma porta na sua rede e aguarda uma conexão secreta")
+            print("  conect         : Conecta a um rádio PyOS que esteja a escutar (ex: conectar 192.168.0.15)")
 
         elif comando == "help-web":
             print("  news           : Exibe as 5 principais manchetes do momento")
@@ -148,6 +149,8 @@ def iniciar_pyos():
             print("  track          : Triangula a localização geográfica de um IP ou Site (ex: track google.com)")
             print("  wiki           : Consulta o Oráculo da Wikipédia sobre qualquer assunto (ex: wiki Buraco negro)")
             print("  translate      : Traduz textos entre idiomas (ex: traduzir en-pt Hello world)")
+            print("  server         : Inicia o compartilhamento (ex: server web OU server ftp)")
+            print("  ai             : Inicia uma conversa com a Inteligência Artificial (ex: ai)")
 
         elif comando == "help-archives":
             print("\n--- Comandos Disponíveis ---")
@@ -599,6 +602,284 @@ def iniciar_pyos():
             except Exception as e:
                 print(f"Erro crítico ao salvar as tarefas: {e}")
 
+# Comando banner
+        elif comando == "banner":
+            if not argumento:
+                print("\n\033[1;36m========== 🎨 GERADOR DE BANNERS ==========\033[0m")
+                print("❌ Uso correto: banner [texto]")
+                print("Exemplo: banner Sistema Hackeado")
+                print("\033[1;36m===========================================\033[0m\n")
+            else:
+                try:
+                    import pyfiglet
+                    
+                    # Usa a fonte 'slant' para um visual inclinado e moderno
+                    # O width=100 garante que o texto não quebre tão fácil se a tela for pequena
+                    banner_ascii = pyfiglet.figlet_format(argumento, font="slant", width=100)
+                    
+                    # Imprime o banner em Ciano Brilhante
+                    print(f"\n\033[1;36m{banner_ascii}\033[0m")
+                    
+                except ImportError:
+                    print("❌ Biblioteca ausente. Abra o CMD normal e digite: pip install pyfiglet")
+                except pyfiglet.FontNotFound:
+                    print("❌ Fonte ASCII não encontrada pelo sistema.")
+                except Exception as e:
+                    print(f"❌ Erro ao gerar o letreiro: {e}")
+
+# Comando listen
+        elif comando == "listen":
+            import socket
+            import threading
+            from datetime import datetime
+            
+            print("\n\033[1;35m========== 📻 RÁDIO FANTASMA (SERVIDOR) ==========\033[0m")
+            
+            arquivo_log = os.path.join(FOLDER_DATAS, "interceptacoes_radio.log")
+            
+            # Função invisível que grava tudo no arquivo de log
+            def gravar_log(remetente, mensagem):
+                agora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                try:
+                    with open(arquivo_log, "a", encoding="utf-8") as f:
+                        f.write(f"[{agora}] {remetente}: {mensagem}\n")
+                except:
+                    pass
+            
+            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+            try:
+                s.connect(("8.8.8.8", 80))
+                meu_ip = s.getsockname()[0]
+            except:
+                meu_ip = "127.0.0.1"
+            finally:
+                s.close()
+                
+            porta_secreta = 9999
+            servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            servidor.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            
+            try:
+                servidor.bind(("0.0.0.0", porta_secreta))
+                servidor.listen(1)
+                
+                print(f"📡 Torre de Rádio erguida! Frequência: \033[1;33m{porta_secreta}\033[0m")
+                print(f"Diga para o seu parceiro digitar: \033[1;36mconectar {meu_ip}\033[0m")
+                print("Aguardando infiltração...\n")
+                
+                conexao, endereco = servidor.accept()
+                
+                print(f"✅ \033[1;32mConexão estabelecida com o Agente {endereco[0]}!\033[0m")
+                print("Chat Ponto-a-Ponto iniciado. Tudo está sendo gravado nos logs.")
+                print("\033[1;35m==================================================\033[0m\n")
+                
+                # Marca o início da conversa no log
+                gravar_log("SISTEMA", f"=== CONEXÃO INICIADA COM {endereco[0]} ===")
+                
+                chat_ativo = [True]
+                
+                def receber_mensagens(conn):
+                    while chat_ativo[0]:
+                        try:
+                            msg = conn.recv(1024).decode('utf-8')
+                            if not msg or msg.lower() == 'sair':
+                                print("\n❌ \033[1;31mO parceiro cortou a linha.\033[0m Pressione Enter para voltar.")
+                                gravar_log("SISTEMA", "=== O PARCEIRO DESCONECTOU ===")
+                                chat_ativo[0] = False
+                                break
+                            
+                            # Imprime na tela e grava no arquivo invisível!
+                            print(f"\n\033[1;36m[Parceiro]:\033[0m \033[1;37m{msg}\033[0m")
+                            gravar_log(endereco[0], msg)
+                        except:
+                            break
+                            
+                threading.Thread(target=receber_mensagens, args=(conexao,), daemon=True).start()
+                
+                while chat_ativo[0]:
+                    try:
+                        texto = input()
+                        if not chat_ativo[0]: break
+                        
+                        if texto.lower() == 'sair':
+                            conexao.send("sair".encode('utf-8'))
+                            chat_ativo[0] = False
+                            gravar_log("SISTEMA", "=== VOCÊ ENCERROU A CONEXÃO ===")
+                            print("Desligando transmissores...")
+                            break
+                            
+                        if texto.strip():
+                            sys.stdout.write("\033[F\033[K")
+                            print(f"\033[1;32m[Você]:\033[0m \033[1;37m{texto}\033[0m")
+                            # Grava a sua mensagem e envia para o parceiro
+                            gravar_log(meu_ip, texto)
+                            conexao.send(texto.encode('utf-8'))
+                    except:
+                        break
+                        
+                conexao.close()
+                servidor.close()
+            except Exception as e:
+                print(f"❌ Falha nos transmissores: {e}")
+
+# Comando conect
+        elif comando == "conect":
+            import socket
+            import threading
+            from datetime import datetime
+            
+            if not argumento:
+                print("\n\033[1;35m========== 📻 RÁDIO FANTASMA ==========\033[0m")
+                print("❌ Uso correto: conectar [IP_DA_TORRE]")
+                print("Exemplo: conectar 192.168.0.15")
+                print("\033[1;35m=======================================\033[0m\n")
+                continue
+                
+            ip_alvo = argumento.strip()
+            porta_secreta = 9999
+            
+            arquivo_log = os.path.join(FOLDER_DATAS, "interceptacoes_radio.log")
+            
+            def gravar_log(remetente, mensagem):
+                agora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+                try:
+                    with open(arquivo_log, "a", encoding="utf-8") as f:
+                        f.write(f"[{agora}] {remetente}: {mensagem}\n")
+                except:
+                    pass
+            
+            print(f"\n\033[1;35m========== 📻 RÁDIO FANTASMA (INFILTRADOR) ==========\033[0m")
+            print(f"Tentando sintonizar na frequência do IP {ip_alvo}...")
+            
+            cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            try:
+                cliente.connect((ip_alvo, porta_secreta))
+                
+                print(f"✅ \033[1;32mInfiltração bem sucedida!\033[0m")
+                print("Chat Ponto-a-Ponto iniciado. Tudo está sendo gravado nos logs.")
+                print("\033[1;35m=====================================================\033[0m\n")
+                
+                gravar_log("SISTEMA", f"=== VOCÊ SE INFILTROU NO IP {ip_alvo} ===")
+                
+                chat_ativo = [True]
+                
+                def receber_mensagens(conn):
+                    while chat_ativo[0]:
+                        try:
+                            msg = conn.recv(1024).decode('utf-8')
+                            if not msg or msg.lower() == 'sair':
+                                print("\n❌ \033[1;31mA torre desligou a transmissão.\033[0m Pressione Enter para voltar.")
+                                gravar_log("SISTEMA", "=== A TORRE DESCONECTOU ===")
+                                chat_ativo[0] = False
+                                break
+                            print(f"\n\033[1;36m[Parceiro]:\033[0m \033[1;37m{msg}\033[0m")
+                            gravar_log(ip_alvo, msg)
+                        except:
+                            break
+                            
+                threading.Thread(target=receber_mensagens, args=(cliente,), daemon=True).start()
+                
+                while chat_ativo[0]:
+                    try:
+                        texto = input()
+                        if not chat_ativo[0]: break
+                        
+                        if texto.lower() == 'sair':
+                            cliente.send("sair".encode('utf-8'))
+                            chat_ativo[0] = False
+                            gravar_log("SISTEMA", "=== VOCÊ CORTOU A LINHA ===")
+                            print("Desconectando da torre...")
+                            break
+                            
+                        if texto.strip():
+                            sys.stdout.write("\033[F\033[K")
+                            print(f"\033[1;32m[Você]:\033[0m \033[1;37m{texto}\033[0m")
+                            gravar_log("VOCÊ", texto)
+                            cliente.send(texto.encode('utf-8'))
+                    except:
+                        break
+                        
+                cliente.close()
+            except ConnectionRefusedError:
+                print(f"❌ \033[1;31mConexão Recusada:\033[0m O IP {ip_alvo} não está rodando o comando 'listen'.")
+            except Exception as e:
+                print(f"❌ Erro de conexão: {e}")
+
+# Comando server
+        elif comando == "server":
+            if argumento in ["web", "ftp"]:
+                # Truque para pegar o IP local
+                try:
+                    import socket
+                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+                    s.connect(("8.8.8.8", 80))
+                    ip_local = s.getsockname()[0]
+                    s.close()
+                except Exception:
+                    ip_local = "127.0.0.1"
+
+                # --- OPÇÃO 1: SERVIDOR WEB (Navegador) ---
+                if argumento == "web":
+                    import http.server
+                    import socketserver
+                    PORTA = 8000
+                    Handler = http.server.SimpleHTTPRequestHandler
+                    socketserver.TCPServer.allow_reuse_address = True
+                    
+                    try:
+                        with socketserver.TCPServer(("", PORTA), Handler) as httpd:
+                            print(f"\n--- Servidor WEB PyOS Iniciado ---")
+                            print(f"🔗 Acesse no navegador: http://{ip_local}:{PORTA}")
+                            print("Pressione 'Ctrl + C' no terminal para desligar.")
+                            httpd.serve_forever()
+                    except KeyboardInterrupt:
+                        print("\nServidor WEB desligado com sucesso.")
+                    except Exception as e:
+                        print(f"\nErro no servidor WEB: {e}")
+
+                # --- OPÇÃO 2: SERVIDOR FTP (Explorador de Arquivos) ---
+                elif argumento == "ftp":
+                    try:
+                        # Importa as ferramentas do pyftpdlib
+                        from pyftpdlib.authorizers import DummyAuthorizer
+                        from pyftpdlib.handlers import FTPHandler
+                        from pyftpdlib.servers import FTPServer
+                        
+                        PORTA_FTP = 2121
+                        
+                        # Configura as permissões (lê e escreve)
+                        authorizer = DummyAuthorizer()
+                        # 'elradfmw' significa permissão total: ler, escrever, deletar, criar pastas
+                        authorizer.add_anonymous(os.getcwd(), perm='elradfmw')
+                        
+                        handler = FTPHandler
+                        handler.authorizer = authorizer
+                        
+                        # Desliga as mensagens chatas de log do FTP para não poluir sua tela
+                        import logging
+                        logging.getLogger("pyftpdlib").setLevel(logging.WARNING)
+                        
+                        server = FTPServer((ip_local, PORTA_FTP), handler)
+                        
+                        print(f"\n--- Servidor FTP PyOS Iniciado ---")
+                        print(f"Pasta compartilhada: {os.getcwd()}")
+                        print(f"Abra o Explorador de Arquivos (Windows) e digite na barra de endereços lá em cima:")
+                        print(f"🔗 ftp://{ip_local}:{PORTA_FTP}")
+                        print("------------------------------------------")
+                        print("Pressione 'Ctrl + C' no terminal para desligar.")
+                        
+                        server.serve_forever()
+                        
+                    except ImportError:
+                        print("Erro: A biblioteca 'pyftpdlib' não está instalada.")
+                        print("Abra o terminal do seu PC e digite: pip install pyftpdlib")
+                    except KeyboardInterrupt:
+                        print("\nServidor FTP desligado com sucesso. Voltando ao PyOS.")
+                    except Exception as e:
+                        print(f"\nErro no servidor FTP: {e}")
+            else:
+                print("Por favor, escolha o modo. Exemplo: server web OU server ftp")
+
 # Comando ai
         elif comando == "ai":
             print("\n--- Iniciando Conexão Neural (PyOS AI) ---")
@@ -678,81 +959,6 @@ def iniciar_pyos():
             except Exception as e:
                 print(f"\nErro de conexão com a IA: {e}")
                 print("DICA: Se a sua chave estiver inválida, abra o arquivo 'config_db.json' e apague a linha da sua API key para o sistema pedir uma nova.")
-
-# Comando server
-        elif comando == "server":
-            if argumento in ["web", "ftp"]:
-                # Truque para pegar o IP local
-                try:
-                    import socket
-                    s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-                    s.connect(("8.8.8.8", 80))
-                    ip_local = s.getsockname()[0]
-                    s.close()
-                except Exception:
-                    ip_local = "127.0.0.1"
-
-                # --- OPÇÃO 1: SERVIDOR WEB (Navegador) ---
-                if argumento == "web":
-                    import http.server
-                    import socketserver
-                    PORTA = 8000
-                    Handler = http.server.SimpleHTTPRequestHandler
-                    socketserver.TCPServer.allow_reuse_address = True
-                    
-                    try:
-                        with socketserver.TCPServer(("", PORTA), Handler) as httpd:
-                            print(f"\n--- Servidor WEB PyOS Iniciado ---")
-                            print(f"🔗 Acesse no navegador: http://{ip_local}:{PORTA}")
-                            print("Pressione 'Ctrl + C' no terminal para desligar.")
-                            httpd.serve_forever()
-                    except KeyboardInterrupt:
-                        print("\nServidor WEB desligado com sucesso.")
-                    except Exception as e:
-                        print(f"\nErro no servidor WEB: {e}")
-
-                # --- OPÇÃO 2: SERVIDOR FTP (Explorador de Arquivos) ---
-                elif argumento == "ftp":
-                    try:
-                        # Importa as ferramentas do pyftpdlib
-                        from pyftpdlib.authorizers import DummyAuthorizer
-                        from pyftpdlib.handlers import FTPHandler
-                        from pyftpdlib.servers import FTPServer
-                        
-                        PORTA_FTP = 2121
-                        
-                        # Configura as permissões (lê e escreve)
-                        authorizer = DummyAuthorizer()
-                        # 'elradfmw' significa permissão total: ler, escrever, deletar, criar pastas
-                        authorizer.add_anonymous(os.getcwd(), perm='elradfmw')
-                        
-                        handler = FTPHandler
-                        handler.authorizer = authorizer
-                        
-                        # Desliga as mensagens chatas de log do FTP para não poluir sua tela
-                        import logging
-                        logging.getLogger("pyftpdlib").setLevel(logging.WARNING)
-                        
-                        server = FTPServer((ip_local, PORTA_FTP), handler)
-                        
-                        print(f"\n--- Servidor FTP PyOS Iniciado ---")
-                        print(f"Pasta compartilhada: {os.getcwd()}")
-                        print(f"Abra o Explorador de Arquivos (Windows) e digite na barra de endereços lá em cima:")
-                        print(f"🔗 ftp://{ip_local}:{PORTA_FTP}")
-                        print("------------------------------------------")
-                        print("Pressione 'Ctrl + C' no terminal para desligar.")
-                        
-                        server.serve_forever()
-                        
-                    except ImportError:
-                        print("Erro: A biblioteca 'pyftpdlib' não está instalada.")
-                        print("Abra o terminal do seu PC e digite: pip install pyftpdlib")
-                    except KeyboardInterrupt:
-                        print("\nServidor FTP desligado com sucesso. Voltando ao PyOS.")
-                    except Exception as e:
-                        print(f"\nErro no servidor FTP: {e}")
-            else:
-                print("Por favor, escolha o modo. Exemplo: server web OU server ftp")
 
 # Comando news
         elif comando == "news":
