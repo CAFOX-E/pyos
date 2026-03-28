@@ -2021,6 +2021,7 @@ def iniciar_pyos():
                 if os.path.exists(argumento):
                     try:
                         # 1. Abre a imagem e converte para o formato RGB padrão
+                        from PIL import Image
                         img = Image.open(argumento)
                         img = img.convert("RGB")
                         
