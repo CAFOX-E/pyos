@@ -874,6 +874,8 @@ def iniciar_pyos():
                     exibir_moeda("EUR", "Euro          ", dados['EURBRL'])
                 if moeda_escolhida in ["BTC", "TODAS"]:
                     exibir_moeda("BTC", "Bitcoin       ", dados['BTCBRL'])
+                if moeda_escolhida in ["ETH", "TODAS"]:
+                    exibir_moeda("ETH", "Etherium      ", dados['ETHBRL'])
                     
                 if moeda_escolhida not in ["USD", "EUR", "BTC", "TODAS"]:
                     print(f"❌ Moeda '{moeda_escolhida}' não encontrada no acesso rápido.")
