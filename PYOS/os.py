@@ -1,5 +1,5 @@
 # ==========================================
-# MÓDULOS NATIVOS DO PYTHON (Já vêm instalados)
+# Native Python modules (already installed)
 # ==========================================
 import os, sys, shutil, stat, subprocess, time, datetime, threading
 import json, csv, math, random, re, textwrap, unicodedata
@@ -8,7 +8,7 @@ import urllib.request, urllib.parse, xml.etree.ElementTree as ET
 import base64, hashlib
 
 # ==========================================
-# MÓDULOS DE TERCEIROS (Instalados via PIP)
+# THIRD-PARTY MODULES (Installed via PIP)
 # ==========================================
 import psutil
 os.environ['PYGAME_HIDE_SUPPORT_PROMPT'] = "hide"
@@ -20,2376 +20,2349 @@ from PIL import Image
 from cryptography.fernet import Fernet
 from deep_translator import GoogleTranslator
 
-def limpar_tela():
-    # Limpa a tela dependendo do sistema operacional real do usuário
+def clear_screen():
+    # Clears the screen depending on the user's actual operating system.
     os.system('cls' if os.name == 'nt' else 'clear')
 
-def iniciar_pyos():
+def start_pyos():
     os.system('')
-    limpar_tela()
+    clear_screen()
     
-    # --- NOVO: PREPARA O BANCO DE DADOS ---
+    # --- PREPARE THE DATABASE ---
     FOLDER_DATAS = "database"
     if not os.path.exists(FOLDER_DATAS):
         os.makedirs(FOLDER_DATAS)
     # --------------------------------------
 
-    # --- NOVO SISTEMA DE LOGIN COM PALAVRA-PASSE E BASE DE DADOS ---
-    arquivo_db = os.path.join(FOLDER_DATAS, "usuarios_db.json")
+    # --- Password-based login system and database. ---
+    archive_db = os.path.join(FOLDER_DATAS, "users_db.json")
     
-    # 1. Carrega a base de dados se ela existir, senão cria uma lista (dicionário) vazia
-    if os.path.exists(arquivo_db):
-        with open(arquivo_db, 'r', encoding='utf-8') as f:
-            banco_usuarios = json.load(f)
+    # 1. Loads the database if it exists; otherwise, creates an empty list (dictionary).
+    if os.path.exists(archive_db):
+        with open(archive_db, 'r', encoding='utf-8') as f:
+            database_users = json.load(f)
     else:
-        banco_usuarios = {}
+        database_users = {}
 
-    print("A iniciar o PyOS...")
-    usuario = ""
-    while not usuario:
-        usuario = input("Login (Digite o seu nome de utilizador): ").strip()
+    print("Starting PyOS...")
+    user = ""
+    while not user:
+        user = input("Login (Enter your username): ").strip()
         
-    # 2. Verifica se o utilizador já existe na nossa base de dados
-    if usuario in banco_usuarios:
-        senha_correta = banco_usuarios[usuario]
-        senha_digitada = ""
+    # 2. Checks if the user already exists in our database.
+    if user in database_users:
+        correct_password = database_users[user]
+        entered_password = ""
         
-        # Fica em loop até o utilizador acertar a palavra-passe
-        while senha_digitada != senha_correta:
-            senha_digitada = input("Palavra-passe: ")
-            if senha_digitada != senha_correta:
-                print("Palavra-passe incorreta. Tente novamente.")
+        # It loops until the user guesses the correct password.
+        while entered_password != correct_password:
+            entered_password = input("Password: ")
+            if entered_password != correct_password:
+                print("Wrong password. Try again.")
     else:
-        # 3. Se não existir, cria uma conta nova e guarda no ficheiro JSON
-        print(f"\nUtilizador '{usuario}' não encontrado. A criar uma nova conta...")
-        nova_senha = input("Crie uma palavra-passe para o seu utilizador: ")
-        banco_usuarios[usuario] = nova_senha
+        # 3. If it doesn't exist, create a new account and save it in the JSON file.
+        print(f"\nUser '{user}' not found. Creating a new account...")
+        new_password = input("Create a password for your user: ")
+        database_users[user] = new_password
         
-        # Guarda a atualização no ficheiro
-        with open(arquivo_db, 'w', encoding='utf-8') as f:
-            json.dump(banco_usuarios, f, indent=4)
-        print("Conta criada com sucesso! A entrar no sistema...")
+        # Save the update to the file.
+        with open(archive_db, 'w', encoding='utf-8') as f:
+            json.dump(database_users, f, indent=4)
+        print("Account created successfully! Logging into the system...")
     # ---------------------------------------------------------------
 
-    # --- NOVO: CARREGAR CONFIGURAÇÕES DE COR DO USUÁRIO ---
-    arquivo_config = os.path.join(FOLDER_DATAS, "config_db.json")
-    if os.path.exists(arquivo_config):
-        with open(arquivo_config, 'r', encoding='utf-8') as f:
-            banco_cores = json.load(f)
-    else:
-        banco_cores = {}
-
-    # Dicionário de cores para o carregamento inicial
-    cores_iniciais = {
-        "red": "\033[31m", "green": "\033[32m", "yellow": "\033[33m",
-        "blue": "\033[34m", "purple": "\033[35m", "cyan": "\033[36m",
-        "white": "\033[37m", "default": "\033[0m"
-    }
-    
-    # Pega a cor salva do usuário (ou usa 'restaurar' se for a primeira vez)
-    cor_salva = banco_cores.get(usuario, "default")
-    print(cores_iniciais[cor_salva], end="")
-    # ------------------------------------------------------
-
-    limpar_tela()
+    clear_screen()
     print("=================================================")
-    print(f" Bem-vindo ao PyOS, {usuario}! ")
-    print(" Projeto feito por \033[1;31mCAFOX-E\033[0m com carinho")
-    print(" Digite 'help' para ver os comandos disponíveis.")
+    print(f" Welcome to PyOS, {user}! ")
+    print(" Project created by \033[1;31mCAFOX-E\033[0m with care.")
+    print(" Type 'help' to see the available commands.")
     print("=================================================")
 
     while True:
-        # Prompt de comando do nosso sistema
-        entrada = input(f"\n{usuario}@PyOS> ").strip()
+        # Our system's command prompt
+        entrance = input(f"\n{user}@PyOS> ").strip()
         
-        if not entrada:
+        if not entrance:
             continue
             
-        # Separa o comando dos argumentos (ex: 'eco ola' -> comando='eco', arg='ola')
-        partes = entrada.split(" ", 1)
-        comando = partes[0].lower()
-        argumento = partes[1] if len(partes) > 1 else ""
+        # Separates the command from the arguments (e.g., 'echo hello' -> command='echo', argument='hello')
+        parts = entrance.split(" ", 1)
+        comand = parts[0].lower()
+        argument = parts[1] if len(parts) > 1 else ""
 
-        # Lógica dos comandos
-        if comando == "quit":
-            print("Desligando o PyOS... Até logo!")
+        # Logic of the commands
+        if comand == "quit":
+            print("Shutting down PyOS... See you later!")
             sys.exit()
             
-        elif comando == "help":
-            print("\n--- Comandos de Ajuda ---")
-            print("  help-basics    : Exibe os comandos básicos do programa")
-            print("  help-web       : Exibe os comandos basicos para uso web")
-            print("  help-archives  : Exibe os comandos de exploração de arquivos")
-            print("  help-office    : Exibe os comandos de criação e edição de arquivos de textos e planilhas")
-            print("  help-config    : Exibe os comandos de configurações de usuários e outros")
-            print("  quit           : Desliga o sistema")
-            print("  \033[1;31mself-destruct\033[0m  : Inicia o Protocolo Ômega (Apaga todos os dados e encerra o PyOS)")
+        elif comand == "help":
+            print("\n--- Help Commands ---")
+            print("  help-basics    : Displays the program's basic commands")
+            print("  help-web       : Displays the basic commands for web use")
+            print("  help-archives  : Displays the file exploration commands")
+            print("  help-office    : Displays commands for creating and editing text files and spreadsheets")
+            print("  help-config    : Displays user settings commands and others")
+            print("  quit           : Turn off the system")
+            print("  \033[1;31mself-destruct\033[0m  : Initiates the Omega Protocol (Erases all data and shuts down PyOS)")
 
-        elif comando == "help-basics":
-            print("\n--- Comandos Disponíveis ---")
-            print("  help           : Mostra esta lista de comandos de ajuda")
-            print("  logout         : Encerra a sessão atual e volta para a tela de login")
-            print("  date           : Exibe a data e hora atuais")
-            print("  time           : Mostra a previsão do tempo em ASCII Art (ex: time, ou time lisboa)")
-            print("  ping           : Testa a conexão de rede com um site ou IP (ex: ping google.com)")
-            print("  clear          : Limpa a tela do terminal")
-            print("  rmnder         : Define um alarme falante em minutos (ex: lembrete 1 Tirar a pizza)")
-            print("  print          : Repete o que você digitar (ex: print Hello World!)")
-            print("  speak          : Faz o sistema ler um texto em voz alta (ex: speak Hello World!)")
-            print("  calc           : Uma calculadora simples (ex: calc 5 + 5)")
-            print("  play           : Abre o menu de mini-jogos do PyOS para relaxar")
-            print("  task           : Gerencia as suas tarefas diárias (ex: task add, task read, task ok)")
-            print("  banner         : Gera um letreiro gigante em ASCII art (ex: banner PyOS)")
-            print("  listen         : Abre uma porta na sua rede e aguarda uma conexão secreta")
-            print("  conect         : Conecta a um rádio PyOS que esteja a escutar (ex: conectar 192.168.0.15)")
+        elif comand == "help-basics":
+            print("\n--- Available Commands ---")
+            print("  help           : Shows a list of help commands")
+            print("  logout         : Ends the current session and returns you to the login screen")
+            print("  date           : Displays the current date and time")
+            print("  time           : Displays the weather forecast in ASCII art (e.g., time, or time lisboa)")
+            print("  ping           : Tests the network connection to a website or IP address (e.g., ping google.com)")
+            print("  clear          : Clear the terminal screen")
+            print("  rmnder         : Set a talking alarm in minutes (e.g., rmnder 1 Take out the pizza)")
+            print("  print          : Repeat what you type (e.g., print Hello World!)")
+            print("  speak          : Makes the system read a text aloud (e.g., speak Hello World!)")
+            print("  calc           : A simple calculator (e.g., calc 5 + 5)")
+            print("  play           : Open the PyOS mini-game menu to relax")
+            print("  task           : Manage your daily tasks (e.g., task add, task read, task ok)")
+            print("  banner         : Generates a giant ASCII art sign (e.g., PyOS banner)")
+            print("  listen         : Open a port on your network and wait for a secret connection")
+            print("  conect         : Connect to a PyOS radio that is listening (e.g., connect to 192.168.0.15)")
 
-        elif comando == "help-web":
-            print("  news           : Exibe as 5 principais manchetes do momento")
-            print("  price          : Mostra o valor do Dólar, Euro e Bitcoin em Reais (ex: price ou price btc)")
-            print("  browse         : Lê o texto de um site diretamente no terminal (ex: browse pt.wikipedia.org/wiki/Linux)")
-            print("  track          : Triangula a localização geográfica de um IP ou Site (ex: track google.com)")
-            print("  wiki           : Consulta o Oráculo da Wikipédia sobre qualquer assunto (ex: wiki Buraco negro)")
-            print("  translate      : Traduz textos entre idiomas (ex: traduzir en-pt Hello world)")
-            print("  server         : Inicia o compartilhamento (ex: server web OU server ftp)")
-            print("  ai             : Inicia uma conversa com a Inteligência Artificial (ex: ai)")
+        elif comand == "help-web":
+            print("\n--- Available Commands ---")
+            print("  news           : Displays the top 5 headlines of the moment")
+            print("  price          : Shows the value of the Dollar, Euro, and Bitcoin in Reais (e.g., price or price btc)")
+            print("  browse         : Read text from a website directly in the terminal (e.g., browse pt.wikipedia.org/wiki/Linux)")
+            print("  track          : Triangulates the geographic location of an IP address or website (e.g., track google.com)")
+            print("  wiki           : Consult the Wikipedia Oracle on any subject (e.g., wiki Black hole)")
+            print("  translate      : Translates text between languages (e.g., translate En-pt Hello world")
+            print("  server         : Start the sharing (e.g., server web OR server ftp)")
+            print("  ai             : Start a conversation with Artificial Intelligence (e.g., ai)")
 
-        elif comando == "help-archives":
-            print("\n--- Comandos Disponíveis ---")
-            print("  list           : Lista os arquivos na pasta atual")
-            print("  cd             : Navega entre as pastas (ex: cd nome_da_pasta ou cd .. para voltar)")
-            print("  search         : Busca arquivos e pastas pelo nome (ex: search projeto)")
-            print("  mkdir          : Cria uma nova pasta (ex: mkdir nova_pasta)")
-            print("  rmdir          : Deleta uma pasta (ex: rmdir pasta_antiga)")
-            print("  tree           : Desenha o mapa visual de arquivos e pastas (ex: tree ou tree banco_de_dados)")
-            print("  open           : Executa um arquivo com o programa padrão do seu computador (ex: open foto.jpg)")
-            print("  delete         : Deleta um arquivo específico (ex: delete texto.txt)")
-            print("  empty          : Apaga TODOS os arquivos de uma pasta de uma vez (ex: empty minha_pasta)")
-            print("  lock           : Criptografa um arquivo com senha (ex: lock segredo.txt)")
-            print("  unlock         : Descriptografa um arquivo bloqueado (ex: unlock segredo.txt.lock)")
-            print("  hide           : Oculta um texto secreto dentro dos pixels de uma imagem (ex: hide foto.png A senha é 123)")
-            print("  reveal         : Extrai a mensagem secreta escondida numa imagem (ex: reveal foto.png)")
-            print("  base64         : Codifica ou decodifica textos no formato Base64 (ex: base64 encode texto)")
-            print("  password       : Cofre criptografado de senhas (ex: password generate, password save, password read)")
+        elif comand == "help-archives":
+            print("\n--- Available Commands ---")
+            print("  list           : Lists the files in the current folder")
+            print("  cd             : Navigate between folders (e.g., cd folder_name or cd .. to go back)")
+            print("  search         : Search for files and folders by name (e.g., search project)")
+            print("  mkdir          : Creates a new folder (e.g., mkdir new_folder)")
+            print("  rmdir          : Deletes a folder (e.g., rmdir old_folder)")
+            print("  tree           : Draws a visual map of files and folders (e.g., tree or tree database)")
+            print("  open           : Open a file using your computer's default program (e.g., open photo.jpg)")
+            print("  delete         : Deletes a specific file (e.g., delete text.txt)")
+            print("  empty          : Delete ALL files from a folder at once (e.g., empty my_folder)")
+            print("  lock           : Encrypts a file with a password (e.g., lock secret.txt)")
+            print("  unlock         : Decrypts a locked file (e.g., unlock secret.txt.lock)")
+            print("  hide           : Hides secret text within the pixels of an image (e.g., hide photo.png The password is 123)")
+            print("  reveal         : Extracts the hidden secret message in an image (e.g., reveal photo.png)")
+            print("  base64         : Encodes or decodes texts in Base64 format (e.g. base64 encodes text)")
+            print("  password       : Encrypted password vault (e.g., password generate, password save, password read)")
             
-        elif comando == "help-office":
-            print("  txt_read       : Exibe o texto de um arquivo no terminal (ex: txt_read notas.txt)")
-            print("  txt_write      : Cria/edita um arquivo de texto (ex: txt_write notas.txt)")
-            print("  txt_edit       : Edita um arquivo de texto já existente (ex: txt_edit notas.txt)")
-            print("  csv_write      : Cria uma nova planilha (ex: csv_write dados.csv)")
-            print("  csv_add        : Adiciona uma linha de dados à planilha (ex: csv_add dados.csv)")
-            print("  csv_read       : Lê e exibe uma planilha em formato de tabela (ex: csv_read dados.csv)")
-            print("  open_image     : Abre e desenha uma imagem direto no terminal (ex: open_image foto.jpg)")
-            print("  audio          : Reprodutor de música em segundo plano (ex: audio musica.mp3, audio pause, audio stop)")
+        elif comand == "help-office":
+            print("\n--- Available Commands ---")
+            print("  txt_read       : Displays the text from a file in the terminal (e.g., txt_read notes.txt)")
+            print("  txt_write      : Creates a text file (e.g., txt_write notes.txt)")
+            print("  txt_edit       : Edits an existing text file (e.g., txt_edit notes.txt)")
+            print("  csv_write      : Creates a new spreadsheet (e.g., csv_write data.csv)")
+            print("  csv_add        : Adds a row of data to the spreadsheet (e.g., csv_add data.csv)")
+            print("  csv_read       : Reads and displays a spreadsheet in table format (e.g., csv_read data.csv)")
+            print("  open_image     : Opens and draws an image directly in the terminal (e.g., open_image photo.jpg)")
+            print("  audio          : Background music player (e.g., audio music.mp3, audio pause, audio stop)")
 
-        elif comando == "help-config":
+        elif comand == "help-config":
             print("\n--- Comandos Disponíveis ---")
-            print("  disk           : Analisa o espaço de armazenamento do disco atual")
-            print("  status         : Mostra o uso de CPU, RAM e Bateria em tempo real")
-            print("  devices        : Lista os adaptadores de rede e dispositivos USB conectados")
-            print("  scan           : Mapeia a sua rede Wi-Fi local e lista os aparelhos conectados")
-            print("  adduser        : Adiciona um novo usuário ao sistema (ex: adduser maria)")
-            print("  dltuser        : Deleta um usuário do sistema (ex: dltuser joao)")
+            print("  disk           : Analyzes the current disk storage space")
+            print("  status         : Shows real-time CPU, RAM, and battery usage")
+            print("  devices        : Lists the connected network adapters and USB devices")
+            print("  scan           : Map your local Wi-Fi network and list connected devices")
+            print("  adduser        : Adds a new user to the system (e.g., adduser mary)")
+            print("  dltuser        : Deletes a user from the system (e.g., dltuser john)")
             
-# Comando logout
-        elif comando == "logout":
-            print(f"\nEncerrando a sessão de '{usuario}'...")
+# Comand logout
+        elif comand == "logout":
+            print(f"\nClosing the session of '{user}'...")
             
-            # Restaura a cor para o padrão (branco/cinza) antes de voltar para a tela inicial
+            # Restores the color to the default (white/gray) before returning to the home screen.
             print("\033[0m", end="")
             
-            # Aguarda 1 segundinho para dar uma sensação mais realista de sistema fechando
+            # Wait a second to give a more realistic feeling of the system shutting down.
             import time
             time.sleep(1)
             
-            # Chama a função principal de novo, reiniciando o ciclo de login!
-            return iniciar_pyos()
+            # It calls the main function again, restarting the login cycle!
+            return start_pyos()
 
-# Comando date
-        elif comando == "date":
-            agora = datetime.datetime.now()
-            print(f"Data e hora do sistema: {agora.strftime('%d/%m/%Y %H:%M:%S')}")
+# Comand date
+        elif comand == "date":
+            now = datetime.datetime.now()
+            print(f"System date and time: {now.strftime('%d/%m/%Y %H:%M:%S')}")
 
-# Comando time
-        elif comando == "time":          
-            print("\n--- Satélite Meteorológico PyOS ---")
-            print("Conectando à estação climática espacial... 🛰️\n")
+# Comand time
+        elif comand == "time":          
+            print("\n--- PyOS Meteorological Satellite ---")
+            print("Connecting to the space weather station... 🛰️\n")
             
             try:
-                # Se o usuário digitou uma cidade (ex: clima curitiba), codifica os espaços e acentos
-                cidade = urllib.parse.quote(argumento.strip()) if argumento else ""
+                # If the user types a city (e.g., time new york), encode the spaces and accents.
+                city = urllib.parse.quote(argument.strip()) if argument else ""
                 
-                # O '?0' no final da URL diz ao servidor para mandar apenas o clima de AGORA (para não poluir a tela)
-                url = f"https://wttr.in/{cidade}?0"
+                # The '?0' at the end of the URL tells the server to send only the current weather (so as not to clutter the screen).
+                url = f"https://wttr.in/{city}?0"
                 
-                # O Truque: Disfarçamos o Python de 'curl' (um comando de terminal de raiz) 
-                # para o site nos devolver as cores ANSI em vez de um site HTML normal.
-                requisicao = urllib.request.Request(url, headers={'User-Agent': 'curl/7.68.0'})
+                # The Trick: We disguised Python as 'curl' (a root terminal command) 
+                # to make the website return the ANSI colors instead of a normal HTML website.
+                request = urllib.request.Request(url, headers={'User-Agent': 'curl/7.68.0'})
                 
-                with urllib.request.urlopen(requisicao) as resposta:
-                    clima_ascii = resposta.read().decode('utf-8')
-                    print(clima_ascii)
+                with urllib.request.urlopen(request) as answer:
+                    time_ascii = answer.read().decode('utf-8')
+                    print(time_ascii)
                     
             except Exception as e:
-                print(f"Erro ao obter a leitura do satélite: {e}")
-                print("DICA: Verifique a sua conexão com a internet.")
+                print(f"Error retrieving satellite reading: {e}")
+                print("TIP: Check your internet connection.")
 
-# Comando ping
-        elif comando == "ping":
-            if argumento:
-                print(f"\nDisparando pulsos de rede para '{argumento}'...")
-                print("Aguarde a resposta do servidor...\n")
+# Comand ping
+        elif comand == "ping":
+            if argument:
+                print(f"\nFiring network pulses to '{argument}'...")
+                print("Please wait for a response from the server...\n")
                 
                 try:
-                    # O Windows usa '-n' para definir o número de pacotes. Mac/Linux usam '-c'.
-                    # Vamos configurar para enviar 4 pacotes (para não ficar rodando para sempre no Linux/Mac)
-                    parametro = '-n' if sys.platform == 'win32' else '-c'
+                    # Windows uses '-n' to set the number of packets. Mac/Linux use '-c'.
+                    # Let's configure it to send 4 packets (so it doesn't keep running forever on Linux/Mac)
+                    parameter = '-n' if sys.platform == 'win32' else '-c'
                     
-                    # Monta o comando exato que o sistema real precisa
-                    comando_ping = ['ping', parametro, '4', argumento]
+                    # It assembles the exact command that the actual system needs.
+                    ping_comand = ['ping', parameter, '4', argument]
                     
-                    # Executa o comando e mostra o resultado direto na tela do PyOS
-                    subprocess.call(comando_ping)
+                    # Execute the command and display the result directly on the PyOS screen.
+                    subprocess.call(ping_comand)
                     
-                    print("\nTeste de conexão finalizado.")
+                    print("\nConnection test completed.")
                 except Exception as e:
-                    print(f"Erro ao tentar acessar a rede: {e}")
+                    print(f"Error accessing the network: {e}")
             else:
-                print("Por favor, digite o endereço de um site ou IP. Exemplo: ping google.com")
+                print("Please enter a website or IP address. Example: ping google.com")
             
-# Comando clear
-        elif comando == "clear":
-            limpar_tela()
+# Comand clear
+        elif comand == "clear":
+            clear_screen()
 
-# Comando rmnder
-        elif comando == "rmnder":
-            # Verifica se o usuário digitou o tempo e a mensagem (ex: "5 Tirar a pizza")
-            partes = argumento.split(" ", 1)
+# Comand rmnder
+        elif comand == "rmnder":
+            # Checks if the user entered the time and message (e.g., "5 Take out the pizza")
+            parts = argument.split(" ", 1)
             
-            if len(partes) >= 2 and partes[0].replace('.', '', 1).isdigit():
-                minutos = float(partes[0])
-                mensagem = partes[1]
+            if len(parts) >= 2 and parts[0].replace('.', '', 1).isdigit():
+                minutes = float(parts[0])
+                message = parts[1]
                 
-                # Esta é a função que vai rodar escondida no fundo do sistema
-                def iniciar_cronometro(tempo_minutos, texto_lembrete, nome_usuario):
+                # This is the function that will run hidden in the system background.
+                def start_timer(time_minutes, reminder_text, username):
                     import time
-                    # Converte minutos para segundos e pausa a thread invisível
-                    time.sleep(tempo_minutos * 60)
+                    # Converts minutes to seconds and pauses the invisible thread.
+                    time.sleep(time_minutes * 60)
                     
-                    # Quando o tempo acaba, ele "invade" o terminal para te avisar
-                    print(f"\n\n⏰ [LEMBRETE DO SISTEMA]: {texto_lembrete.upper()}!")
-                    # Reimprime o cursor do terminal para não bagunçar a sua tela
-                    print(f"[{nome_usuario}] > ", end="", flush=True)
+                    # When the time runs out, it "invades" the terminal to let you know.
+                    print(f"\n\n⏰ [SYSTEM REMINDER]: {reminder_text.upper()}!")
+                    # Reprints the terminal cursor to avoid cluttering your screen.
+                    print(f"[{username}] > ", end="", flush=True)
                     
-                    # Tenta falar em voz alta usando o motor de voz do PyOS
+                    # Try speaking aloud using the PyOS voice engine.
                     try:
                         import pyttsx3
                         engine = pyttsx3.init()
                         engine.setProperty('rate', 170)
-                        engine.say(f"Atenção, lembrete: {texto_lembrete}")
+                        engine.say(f"Attention, reminder: {reminder_text}")
                         engine.runAndWait()
                     except Exception:
                         pass
 
-                # Prepara a "dimensão paralela" (Thread) com a nossa função
-                thread_alarme = threading.Thread(target=iniciar_cronometro, args=(minutos, mensagem, usuario))
+                # Prepare the "parallel dimension" (Thread) with our function.
+                thread_alarm = threading.Thread(target=start_timer, args=(minutes, message, user))
                 
-                # O daemon=True faz com que o alarme seja destruído automaticamente se você fechar o PyOS
-                thread_alarme.daemon = True 
+                # The daemon=True setting causes the alarm to be automatically destroyed if you close PyOS.
+                thread_alarm.daemon = True 
                 
-                # Dá o "play" no cronômetro invisível!
-                thread_alarme.start()
+                # Press "play" on the invisible timer!
+                thread_alarm.start()
                 
-                print(f"⏰ Lembrete configurado com sucesso para daqui a {minutos} minuto(s).")
-                print("Pode continuar a usar o sistema normalmente!")
+                print(f"⏰ Reminder successfully set for {minutes} minute(s) from now")
+                print("You can continue using the system normally!")
             else:
-                print("Formato inválido. Use: lembrete [minutos] [mensagem]")
-                print("Exemplo: lembrete 2.5 Olhar o pão no forno")
+                print("Invalid format. Use: rmnder [minutes] [message]")
+                print("Example: rmnder 2.5 Check the bread in the oven")
 
-# Comando print
-        elif comando == "print":
-            print(argumento)
+# Comand print
+        elif comand == "print":
+            print(argument)
 
-# Comando speak
-        elif comando == "speak":
-            if argumento:
-                print(f"🗣️ PyOS diz: {argumento}")
+# Comand speak
+        elif comand == "speak":
+            if argument:
+                print(f"🗣️ PyOS says: {argument}")
                 try:
-                    # 1. Inicia o motor de voz
+                    # 1. Start the voice engine
                     engine = pyttsx3.init()
                     
-                    # 2. Configura a velocidade da voz (opcional, 150 a 200 é uma boa velocidade natural)
+                    # 2. Set the voice speed (optional, 150 to 200 is a good natural speed)
                     engine.setProperty('rate', 170)
                     
-                    # 3. Faz o sistema falar!
-                    engine.say(argumento)
+                    # 3. Make the system talk
+                    engine.say(argument)
                     
-                    # 4. Espera a fala terminar antes de liberar o terminal de volta para você
+                    # 4. Wait for the conversation to finish before releasing the terminal back to you
                     engine.runAndWait()
                     
                 except Exception as e:
-                    print(f"Erro no módulo de voz: {e}")
-                    print("DICA: Verifique se o volume do seu computador está ligado.")
+                    print(f"Error in the voice module: {e}")
+                    print("TIP: Check if your computer's volume is turned on.")
             else:
-                print("Por favor, digite o que eu devo falar. Exemplo: falar Sistema operacional ativado com sucesso.")
+                print("Please type what I should say. Example: speak Operating system successfully activated.")
 
-# Comando calc
-        elif comando == "calc":
-            # Criamos um "dicionário seguro" com as funções matemáticas permitidas.
-            # Isso deixa o eval() muito mais seguro e poderoso!
-            funcoes_matematicas = {
+# Comand calc
+        elif comand == "calc":
+            # We created a "safe dictionary" with the allowed mathematical functions.
+            # This makes eval() much safer and more powerful!
+            mathematical_functions = {
                 "sqrt": math.sqrt, "sin": math.sin, "cos": math.cos, 
                 "tan": math.tan, "log": math.log, "log10": math.log10,
                 "pi": math.pi, "e": math.e, "abs": abs
             }
             
-            def resolver_conta(expressao):
+            def resolve_account(expression):
                 try:
-                    # 1. Transforma a palavra "de" em multiplicação (Ex: 50% de 100 vira 50% * 100)
-                    expressao_ajustada = expressao.replace(' de ', ' * ')
+                    # 1. Transform the word "of" into a multiplication (Ex: 50% of 100 becomes 50% * 100)
+                    adjusted_expression = expression.replace(' of ', ' * ')
                     
-                    # 2. Transforma o número com % em divisão (Ex: 50% vira (50/100))
-                    # O 're.sub' procura números seguidos de % e faz a troca matematicamente correta
-                    expressao_ajustada = re.sub(r'([0-9.]+)%', r'(\1/100)', expressao_ajustada)
+                    # 2. Transforms the number with a percentage sign into a division symbol (e.g., 50% becomes 50/100)
+                    # The 're.sub' function searches for numbers followed by % and performs the mathematically correct substitution.
+                    adjusted_expression = re.sub(r'([0-9.]+)%', r'(\1/100)', adjusted_expression)
                     
-                    resultado = eval(expressao_ajustada, {"__builtins__": None}, funcoes_matematicas)
-                    return resultado
+                    result = eval(adjusted_expression, {"__builtins__": None}, mathematical_functions)
+                    return result
                 except ZeroDivisionError:
-                    return "Erro: Divisão por zero não é permitida."
+                    return "Error: Division by zero is not allowed."
                 except Exception:
-                    return "Erro de sintaxe. Verifique a expressão digitada."
+                    return "Syntax error. Please check the typed expression."
 
-            # Se o usuário digitou a conta direto na linha (ex: calc 10 * 2)
-            if argumento:
-                print(f"Resultado: {resolver_conta(argumento)}")
+            # If the user typed the calculation directly into the line (e.g., calc 10 * 2)
+            if argument:
+                print(f"Result: {resolve_account(argument)}")
                 
-            # Se o usuário digitou apenas 'calc', abrimos o Modo Interativo
+            # If the user typed only 'calc', we opened Interactive Mode.
             else:
-                print("\n--- Calculadora Científica PyOS ---")
-                print("Operadores básicos: + (soma), - (subtração), * (multiplicação), / (divisão), ** (potência)")
-                print("Funções avançadas: sqrt(x), sin(x), cos(x), log(x), pi, e")
-                print("DICA: Digite ':q' ou 'sair' para voltar ao sistema.")
+                print("\n--- PyOS Scientific Calculator ---")
+                print("Basic operators: + (addition), - (subtraction), * (multiplication), / (division), ** (exponentiation)")
+                print("Advanced functions: sqrt(x), sin(x), cos(x), log(x), pi, e")
+                print("TIP: Type ':q' or 'exit' to return to the system.")
                 print("-" * 35)
                 
                 while True:
-                    conta = input("calc> ").strip().lower()
+                    count = input("calc> ").strip().lower()
                     
-                    if conta in [':q', 'sair']:
-                        print("Fechando calculadora...")
+                    if count in [':q', 'sair']:
+                        print("Closing calculator...")
                         break
-                    if not conta:
+                    if not count:
                         continue
                         
-                    resultado = resolver_conta(conta)
-                    print(f" = {resultado}")
+                    result = resolve_account(count)
+                    print(f" = {result}")
 
-# Comando play
-        elif comando == "play":
+# Comand play
+        elif comand == "play":
             while True:
-                print("\n=== 🕹️ Salão de Jogos PyOS ===")
-                print("1. Adivinha o Número")
-                print("2. Pedra, Papel e Tesoura")
-                print("3. Jogo da Forca")
-                print("0. Sair dos jogos")
+                print("\n=== 🕹️ PyOS Game Room ===")
+                print("1. Guess the Number")
+                print("2. Rock, Paper, Scissors")
+                print("3. Hangman")
+                print("0. Leave games")
                 print("================================")
                 
-                escolha = input("Escolha um jogo (0, 1, 2 ou 3): ").strip()
+                choice = input("Choose a game (0, 1, 2 or 3): ").strip()
                 
-                if escolha == '0':
-                    print("A sair do Salão de Jogos. De volta ao trabalho!")
+                if choice == '0':
+                    print("Leaving the arcade. Back to work!")
                     
-                    # --- NOVO: LIMPEZA DE ARQUIVOS TEMPORÁRIOS ---
-                    arquivo_dicionario = "dicionario_br.txt"
-                    if os.path.exists(arquivo_dicionario):
+                    # --- TEMPORARY FILE CLEANUP ---
+                    dictionary_file = "dicionary_en.txt"
+                    if os.path.exists(dictionary_file):
                         try:
-                            os.remove(arquivo_dicionario)
-                            print("[Sistema] Dicionário temporário apagado. Pasta limpa!")
+                            os.remove(dictionary_file)
+                            print("[System] Temporary dictionary deleted. Folder cleared!")
                         except Exception as e:
                             pass
                     # ---------------------------------------------
                     break
                     
-                elif escolha == '1':
-                    print("\n--- Adivinha o Número ---")
-                    numero_secreto = random.randint(1, 100)
-                    tentativas = 0
-                    print("O PyOS pensou num número entre 1 e 100. Tenta adivinhar!")
+                elif choice == '1':
+                    print("\n--- Guess the Number ---")
+                    secret_number = random.randint(1, 100)
+                    attempts = 0
+                    print("PyOS came up with a number between 1 and 100. Try to guess!")
                     
                     while True:
-                        palpite = input("O teu palpite (ou ':q' para sair): ").strip()
-                        if palpite.lower() == ':q': break
-                        if not palpite.isdigit(): continue
+                        guess = input("Your guess (or ':q' to exit): ").strip()
+                        if guess.lower() == ':q': break
+                        if not guess.isdigit(): continue
                             
-                        palpite = int(palpite)
-                        tentativas += 1
+                        guess = int(guess)
+                        attempts += 1
                         
-                        if palpite < numero_secreto: print("🔺 Mais alto!")
-                        elif palpite > numero_secreto: print("🔻 Mais baixo!")
+                        if guess < secret_number: print("🔺 Higher!")
+                        elif guess > secret_number: print("🔻 Lower!")
                         else:
-                            print(f"🎉 Parabéns! Acertaste em cheio no {numero_secreto} com {tentativas} tentativa(s)!")
+                            print(f"🎉 Congratulations! You guessed {secret_number} perfectly with {attempts} attempt(s)!")
                             break
                             
-                elif escolha == '2':
-                    print("\n--- Pedra, Papel e Tesoura ---")
-                    opcoes = ["pedra", "papel", "tesoura"]
+                elif choice == '2':
+                    print("\n--- Rock, Paper, Scissors ---")
+                    options = ["rock", "paper", "scissors"]
                     
                     while True:
-                        jogada = input("Escolhe: pedra, papel, tesoura (ou ':q' para sair): ").strip().lower()
-                        if jogada == ':q': break
-                        if jogada not in opcoes: continue
+                        play = input("Choose: rock, paper, scissors (or ':q' to exit): ").strip().lower()
+                        if play == ':q': break
+                        if play not in options: continue
                             
-                        pc_jogada = random.choice(opcoes)
-                        print(f"💻 O computador escolheu: {pc_jogada.upper()}")
+                        pc_play = random.choice(options)
+                        print(f"💻 The computer chose: {pc_play.upper()}")
                         
-                        if jogada == pc_jogada: print("🤝 Empate!")
-                        elif (jogada == 'pedra' and pc_jogada == 'tesoura') or \
-                             (jogada == 'papel' and pc_jogada == 'pedra') or \
-                             (jogada == 'tesoura' and pc_jogada == 'papel'):
-                            print("🏆 Ganhaste esta ronda!")
-                        else: print("💀 Perdeste! O computador foi mais esperto.")
+                        if play == pc_play: print("🤝 Draw!")
+                        elif (play == 'rock' and pc_play == 'scissor') or \
+                             (play == 'paper' and pc_play == 'rock') or \
+                             (play == 'scissor' and pc_play == 'paper'):
+                            print("🏆 You won this round!")
+                        else: print("💀 You lost! The computer was smarter.")
                         
-                # --- NOVO: JOGO DA FORCA (PALAVRAS COM 5+ LETRAS) ---
-                elif escolha == '3':
-                    print("\n--- Jogo da Forca ---")
+                # --- Hangman Game (Words with 5+ Letters) ---
+                elif choice == '3':
+                    print("\n--- Hangman ---")
                     
-                    arquivo_dicionario = "dicionario_br.txt"
-                    # Lista de emergência atualizada apenas com palavras maiores
-                    palavras = ["python", "computador", "teclado", "internet", "criptografia"] 
+                    dictionary_file = "dicionario_en.txt"
+                    # Emergency list updated with only longer words.
+                    words = ["python", "computer", "keyboard", "internet", "criptography"] 
                     
-                    # 1. Verifica se o dicionário já foi descarregado
-                    if not os.path.exists(arquivo_dicionario):
-                        print("A descarregar o dicionário completo de Português (aguarde uns segundos)...")
+                    # 1. Check if the dictionary has already been downloaded.
+                    if not os.path.exists(dictionary_file):
+                        print("Downloading the complete Portuguese dictionary (please wait a few seconds)...")
                         try:
-                            url = "https://raw.githubusercontent.com/pythonprobr/palavras/master/palavras.txt"
-                            urllib.request.urlretrieve(url, arquivo_dicionario)
-                            print("Dicionário descarregado com sucesso!")
+                            url = "https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt"
+                            urllib.request.urlretrieve(url, dictionary_file)
+                            print("Dictionary downloaded successfully!")
                         except Exception as e:
-                            print(f"Erro ao descarregar: {e}. A usar lista de emergência.")
+                            print(f"Error downloading: {e}. Using the emergency list.")
                     
-                    # 2. Lê as palavras do ficheiro
+                    # 2. Read the words from the file.
                     try:
-                        if os.path.exists(arquivo_dicionario):
-                            with open(arquivo_dicionario, 'r', encoding='utf-8') as f:
-                                # AQUI ESTÁ A MUDANÇA: Filtra para usar APENAS palavras com 5 ou mais letras!
-                                palavras = [p.strip() for p in f.readlines() if len(p.strip()) >= 5]
+                        if os.path.exists(dictionary_file):
+                            with open(dictionary_file, 'r', encoding='utf-8') as f:
+                                # Filter to use ONLY words with 5 or more letters!
+                                words = [p.strip() for p in f.readlines() if len(p.strip()) >= 5]
                     except Exception:
                         pass
                         
-                    # 3. Sorteia a palavra
-                    palavra_original = random.choice(palavras).lower()
+                    # 3. Sort the word
+                    original_word = random.choice(words).lower()
                     
-                    # 4. Remove os acentos (ex: "computação" vira "computacao")
-                    palavra_secreta = "".join(c for c in unicodedata.normalize('NFD', palavra_original) if unicodedata.category(c) != 'Mn')
+                    # 4. Remove the accents from the words.
+                    secret_word = "".join(c for c in unicodedata.normalize('NFD', original_word) if unicodedata.category(c) != 'Mn')
                     
-                    letras_descobertas = []
-                    erros_permitidos = 6
+                    discovered_letters = []
+                    allowed_errors = 6
                     
-                    print(f"DICA: A palavra tem {len(palavra_secreta)} letras!")
+                    print(f"TIP: The word has {len(secret_word)} letters!")
                     
                     while True:
-                        palavra_oculta = ""
-                        for letra in palavra_secreta:
-                            if letra in letras_descobertas:
-                                palavra_oculta += letra + " "
+                        hidden_word = ""
+                        for letter in secret_word:
+                            if letter in discovered_letters:
+                                hidden_word += letter + " "
                             else:
-                                palavra_oculta += "_ "
+                                hidden_word += "_ "
                                 
-                        print(f"\nPalavra: {palavra_oculta}")
-                        print(f"Tentativas restantes: {erros_permitidos}")
+                        print(f"\nWord: {hidden_word}")
+                        print(f"Remaining attempts: {allowed_errors}")
                         
-                        if "_" not in palavra_oculta:
-                            print(f"🎉 Parabéns! Escapaste da forca! A palavra era {palavra_original.upper()}.")
+                        if "_" not in hidden_word:
+                            print(f"🎉 Congratulations! You escaped the gallows! The word was {original_word.upper()}.")
                             break
                             
-                        if erros_permitidos == 0:
-                            print(f"💀 Fim de jogo! Foste enforcado. A palavra era: {palavra_original.upper()}")
+                        if allowed_errors == 0:
+                            print(f"💀 Game over! You were hanged. The word was: {original_word.upper()}")
                             break
                             
-                        letra_digitada = input("Digita uma letra (ou ':q' para sair): ").strip().lower()
+                        typed_letter = input("Type a letter (or ':q' to exit): ").strip().lower()
                         
-                        if letra_digitada == ':q': break
-                        if len(letra_digitada) != 1 or not letra_digitada.isalpha():
-                            print("Por favor, digita apenas uma letra válida.")
+                        if typed_letter == ':q': break
+                        if len(typed_letter) != 1 or not typed_letter.isalpha():
+                            print("Please enter only one valid letter.")
                             continue
                             
-                        # Remove o acento também da letra digitada
-                        letra_digitada = "".join(c for c in unicodedata.normalize('NFD', letra_digitada) if unicodedata.category(c) != 'Mn')
+                        # Remove the accent from the typed letter as well.
+                        typed_letter = "".join(c for c in unicodedata.normalize('NFD', typed_letter) if unicodedata.category(c) != 'Mn')
                             
-                        if letra_digitada in letras_descobertas:
-                            print("Já tentaste essa letra! Tenta outra.")
+                        if typed_letter in discovered_letters:
+                            print("You've already tried that letter! Try another one.")
                             continue
                             
-                        letras_descobertas.append(letra_digitada)
+                        discovered_letters.append(typed_letter)
                         
-                        if letra_digitada in palavra_secreta:
-                            print("✅ Boa! Acertaste numa letra.")
+                        if typed_letter in secret_word:
+                            print("✅ Great! You got one letter right.")
                         else:
-                            print("❌ Ops! Essa letra não existe na palavra.")
-                            erros_permitidos -= 1
+                            print("❌ Oops! That letter doesn't exist in the word.")
+                            allowed_errors -= 1
                 else:
-                    print("Escolha inválida. Tenta novamente.")
+                    print("Invalid selection. Please try again.")
 
-# Comando task
-        elif comando == "task":
+# Comand task
+        elif comand == "task":
             
-            # O ficheiro onde o PyOS vai guardar a sua vida
-            arquivo_tarefas = os.path.join(FOLDER_DATAS, "tarefas_pyos.json")
+            # The file where PyOS will store its data
+            task_file = os.path.join(FOLDER_DATAS, "tasks_pyos.json")
             
-            # 1. Carrega as tarefas existentes (se o ficheiro já existir)
-            tarefas = []
-            if os.path.exists(arquivo_tarefas):
+            # 1. Load existing tasks (if the file already exists).
+            tasks = []
+            if os.path.exists(task_file):
                 try:
-                    with open(arquivo_tarefas, 'r', encoding='utf-8') as f:
-                        tarefas = json.load(f)
+                    with open(task_file, 'r', encoding='utf-8') as f:
+                        tasks = json.load(f)
                 except Exception:
                     pass
             
-            # Se o utilizador digitou apenas "task", mostramos o manual de uso
-            if not argumento:
-                print("\n\033[1;36m========== 📋 GERENCIADOR DE TAREFAS ==========\033[0m")
-                print("Comandos disponíveis:")
-                print("  \033[1;33mtask add [texto]\033[0m : Adiciona uma nova tarefa")
-                print("  \033[1;33mtask read\033[0m        : Lista todas as suas tarefas")
-                print("  \033[1;33mtask ok [numero]\033[0m : Marca uma tarefa como concluída")
-                print("  \033[1;33mtask del [numero]\033[0m: Apaga uma tarefa da lista")
+            # If the user typed only "task", we display the user manual.
+            if not argument:
+                print("\n\033[1;36m========== 📋 TASK MANAGER ==========\033[0m")
+                print("Available commands:")
+                print("  \033[1;33mtask add [text]\033[0m : Add a new task")
+                print("  \033[1;33mtask read\033[0m        : List all your tasks.")
+                print("  \033[1;33mtask ok [number]\033[0m : Mark a task as completed.")
+                print("  \033[1;33mtask del [number]\033[0m: Delete a task from the list.")
                 print("\033[1;36m===============================================\033[0m\n")
-                continue # Volta para o início do loop sem dar erro
+                continue # Return to the beginning of the loop without error.
 
-            # Divide o que o utilizador digitou (ex: "add" e "Estudar Python")
-            partes = argumento.split(" ", 1)
-            acao = partes[0].lower()
-            detalhe = partes[1] if len(partes) > 1 else ""
+            # Divide what the user typed (e.g., "add" and "Study Python")
+            parts = argument.split(" ", 1)
+            action = parts[0].lower()
+            detail = parts[1] if len(parts) > 1 else ""
 
-            # --- LÓGICA DE CRUD (Create, Read, Update, Delete) ---
-            if acao == "add" and detalhe:
-                tarefas.append({"texto": detalhe, "concluida": False})
-                print(f"✅ \033[1;32mTarefa adicionada à base de dados:\033[0m {detalhe}")
+            # --- CRUD LOGIC (Create, Read, Update, Delete) ---
+            if action == "add" and detail:
+                tasks.append({"text": detail, "completed": False})
+                print(f"✅ \033[1;32mTask added to the database:\033[0m {detail}")
             
-            elif acao in ["read", "list"]:
-                print("\n\033[1;36m========== 📋 AS SUAS TAREFAS ==========\033[0m")
-                if not tarefas:
-                    print("Nenhuma tarefa pendente. Você está livre! 🎮")
+            elif action in ["read", "list"]:
+                print("\n\033[1;36m========== 📋 YOUR TASKS ==========\033[0m")
+                if not tasks:
+                    print("No tasks left to do. You are free! 🎮")
                 else:
-                    for i, t in enumerate(tarefas):
-                        # Pinta o [X] de Verde e o [ ] de Vermelho
-                        status = "\033[1;32m[X]\033[0m" if t["concluida"] else "\033[1;31m[ ]\033[0m"
-                        # Risca o texto se estiver concluído usando código ANSI especial (\033[9m)
-                        texto = f"\033[9m{t['texto']}\033[0m" if t["concluida"] else t['texto']
-                        print(f" {i+1}. {status} {texto}")
+                    for i, t in enumerate(tasks):
+                        # Paint the [X] green and the [ ] red.
+                        status = "\033[1;32m[X]\033[0m" if t["completed"] else "\033[1;31m[ ]\033[0m"
+                        # Strikethrough text if complete using special ANSI code (\033[9m)
+                        text = f"\033[9m{t['text']}\033[0m" if t["completed"] else t['text']
+                        print(f" {i+1}. {status} {text}")
                 print("\033[1;36m========================================\033[0m\n")
             
-            elif acao == "ok" and detalhe.isdigit():
-                idx = int(detalhe) - 1
-                if 0 <= idx < len(tarefas):
-                    tarefas[idx]["concluida"] = True
-                    print(f"🎉 \033[1;32mTarefa {idx+1} concluída!\033[0m Excelente trabalho.")
+            elif action == "ok" and detail.isdigit():
+                idx = int(detail) - 1
+                if 0 <= idx < len(tasks):
+                    tasks[idx]["completed"] = True
+                    print(f"🎉 \033[1;32mTask {idx+1} completed!\033[0m Excelent work.")
                 else:
-                    print("❌ Número de tarefa inválido.")
+                    print("❌ Invalid task number.")
                     
-            elif acao == "del" and detalhe.isdigit():
-                idx = int(detalhe) - 1
-                if 0 <= idx < len(tarefas):
-                    removida = tarefas.pop(idx)
-                    print(f"🗑️ \033[1;31mTarefa apagada:\033[0m {removida['texto']}")
+            elif action == "del" and detail.isdigit():
+                idx = int(detail) - 1
+                if 0 <= idx < len(tasks):
+                    removed = tasks.pop(idx)
+                    print(f"🗑️ \033[1;31mTask deleted:\033[0m {removed['text']}")
                 else:
-                    print("❌ Número de tarefa inválido.")
+                    print("❌ Invalid task number.")
             else:
-                print("❌ Comando de tarefa não reconhecido. Digite apenas 'tarefa' para ajuda.")
+                print("❌ The task command is not recognized. Just type 'task' for help.")
 
-            # 2. Salva as alterações de volta no disco rígido
+            # 2. Saves the changes back to the hard drive.
             try:
-                with open(arquivo_tarefas, 'w', encoding='utf-8') as f:
-                    json.dump(tarefas, f, ensure_ascii=False, indent=4)
+                with open(task_file, 'w', encoding='utf-8') as f:
+                    json.dump(tasks, f, ensure_ascii=False, indent=4)
             except Exception as e:
-                print(f"Erro crítico ao salvar as tarefas: {e}")
+                print(f"Critical error while saving tasks: {e}")
 
-# Comando banner
-        elif comando == "banner":
-            if not argumento:
-                print("\n\033[1;36m========== 🎨 GERADOR DE BANNERS ==========\033[0m")
-                print("❌ Uso correto: banner [texto]")
-                print("Exemplo: banner Sistema Hackeado")
+# Comand banner
+        elif comand == "banner":
+            if not argument:
+                print("\n\033[1;36m========== 🎨 BANNER GENERATOR ==========\033[0m")
+                print("❌ Correct usage: banner [text]")
+                print("Example: banner Hacked System")
                 print("\033[1;36m===========================================\033[0m\n")
             else:
                 try:
                     import pyfiglet
                     
-                    # Usa a fonte 'slant' para um visual inclinado e moderno
-                    # O width=100 garante que o texto não quebre tão fácil se a tela for pequena
-                    banner_ascii = pyfiglet.figlet_format(argumento, font="slant", width=100)
+                    # Use the 'slant' font for a slanted, modern look.
+                    # Setting width=100 ensures that the text won't break as easily if the screen is small.
+                    banner_ascii = pyfiglet.figlet_format(argument, font="slant", width=100)
                     
-                    # Imprime o banner em Ciano Brilhante
+                    # Print the banner in Brilliant Cyan
                     print(f"\n\033[1;36m{banner_ascii}\033[0m")
                     
                 except ImportError:
-                    print("❌ Biblioteca ausente. Abra o CMD normal e digite: pip install pyfiglet")
+                    print("❌ Library missing. Open a normal command prompt (CMD) and type: pip install pyfiglet")
                 except pyfiglet.FontNotFound:
-                    print("❌ Fonte ASCII não encontrada pelo sistema.")
+                    print("❌ The ASCII font was not found by the system.")
                 except Exception as e:
-                    print(f"❌ Erro ao gerar o letreiro: {e}")
+                    print(f"❌ Error generating the sign: {e}")
 
-# Comando listen
-        elif comando == "listen":
+# Comand listen
+        elif comand == "listen":
             import socket
             import threading
             from datetime import datetime
             
-            print("\n\033[1;35m========== 📻 RÁDIO FANTASMA (SERVIDOR) ==========\033[0m")
+            print("\n\033[1;35m========== 📻 GHOST RADIO (SERVER) ==========\033[0m")
             
-            arquivo_log = os.path.join(FOLDER_DATAS, "interceptacoes_radio.log")
+            archive_log = os.path.join(FOLDER_DATAS, "interceptations_radio.log")
             
-            # Função invisível que grava tudo no arquivo de log
-            def gravar_log(remetente, mensagem):
-                agora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            # Invisible function that logs everything to the log file.
+            def record_log(sender, message):
+                now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
                 try:
-                    with open(arquivo_log, "a", encoding="utf-8") as f:
-                        f.write(f"[{agora}] {remetente}: {mensagem}\n")
+                    with open(archive_log, "a", encoding="utf-8") as f:
+                        f.write(f"[{now}] {sender}: {message}\n")
                 except:
                     pass
             
             s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
             try:
                 s.connect(("8.8.8.8", 80))
-                meu_ip = s.getsockname()[0]
+                my_ip = s.getsockname()[0]
             except:
-                meu_ip = "127.0.0.1"
+                my_ip = "127.0.0.1"
             finally:
                 s.close()
                 
-            porta_secreta = 9999
-            servidor = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-            servidor.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+            secret_door = 9999
+            server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             
             try:
-                servidor.bind(("0.0.0.0", porta_secreta))
-                servidor.listen(1)
+                server.bind(("0.0.0.0", secret_door))
+                server.listen(1)
                 
-                print(f"📡 Torre de Rádio erguida! Frequência: \033[1;33m{porta_secreta}\033[0m")
-                print(f"Diga para o seu parceiro digitar: \033[1;36mconectar {meu_ip}\033[0m")
-                print("Aguardando infiltração...\n")
+                print(f"📡 Radio tower erected! Frequency: \033[1;33m{secret_door}\033[0m")
+                print(f"Tell your partner to type: \033[1;36mconect {my_ip}\033[0m")
+                print("Awaiting infiltration...\n")
                 
-                conexao, endereco = servidor.accept()
+                conection, address = server.accept()
                 
-                print(f"✅ \033[1;32mConexão estabelecida com o Agente {endereco[0]}!\033[0m")
-                print("Chat Ponto-a-Ponto iniciado. Tudo está sendo gravado nos logs.")
+                print(f"✅ \033[1;32mConnection established with the Agent {address[0]}!\033[0m")
+                print("Point-to-point chat initiated. Everything is being recorded in the logs.")
                 print("\033[1;35m==================================================\033[0m\n")
                 
-                # Marca o início da conversa no log
-                gravar_log("SISTEMA", f"=== CONEXÃO INICIADA COM {endereco[0]} ===")
+                # This marks the beginning of the conversation in the log.
+                record_log("SISTEM", f"=== CONNECTION INITIATED WITH {address[0]} ===")
                 
-                chat_ativo = [True]
+                active_chat = [True]
                 
-                def receber_mensagens(conn):
-                    while chat_ativo[0]:
+                def receive_messages(conn):
+                    while active_chat[0]:
                         try:
                             msg = conn.recv(1024).decode('utf-8')
                             if not msg or msg.lower() == 'sair':
-                                print("\n❌ \033[1;31mO parceiro cortou a linha.\033[0m Pressione Enter para voltar.")
-                                gravar_log("SISTEMA", "=== O PARCEIRO DESCONECTOU ===")
-                                chat_ativo[0] = False
+                                print("\n❌ \033[1;31mThe partner cut the line.\033[0m Press Enter to go back.")
+                                record_log("SISTEM", "=== THE PARTNER DISCONNECTED ===")
+                                active_chat[0] = False
                                 break
                             
-                            # Imprime na tela e grava no arquivo invisível!
-                            print(f"\n\033[1;36m[Parceiro]:\033[0m \033[1;37m{msg}\033[0m")
-                            gravar_log(endereco[0], msg)
+                            # Print to the screen and save to an invisible file!
+                            print(f"\n\033[1;36m[Partner]:\033[0m \033[1;37m{msg}\033[0m")
+                            record_log(address[0], msg)
                         except:
                             break
                             
-                threading.Thread(target=receber_mensagens, args=(conexao,), daemon=True).start()
+                threading.Thread(target=receive_messages, args=(conection,), daemon=True).start()
                 
-                while chat_ativo[0]:
+                while active_chat[0]:
                     try:
-                        texto = input()
-                        if not chat_ativo[0]: break
+                        text = input()
+                        if not active_chat[0]: break
                         
-                        if texto.lower() == 'sair':
-                            conexao.send("sair".encode('utf-8'))
-                            chat_ativo[0] = False
-                            gravar_log("SISTEMA", "=== VOCÊ ENCERROU A CONEXÃO ===")
-                            print("Desligando transmissores...")
+                        if text.lower() == 'sair':
+                            conection.send("sair".encode('utf-8'))
+                            active_chat[0] = False
+                            record_log("SISTEM", "=== YOU ENDED THE CONNECTION ===")
+                            print("Turning off transmitters...")
                             break
                             
-                        if texto.strip():
+                        if text.strip():
                             sys.stdout.write("\033[F\033[K")
-                            print(f"\033[1;32m[Você]:\033[0m \033[1;37m{texto}\033[0m")
-                            # Grava a sua mensagem e envia para o parceiro
-                            gravar_log(meu_ip, texto)
-                            conexao.send(texto.encode('utf-8'))
+                            print(f"\033[1;32m[You]:\033[0m \033[1;37m{text}\033[0m")
+                            # Record your message and send it to your partner.
+                            record_log(my_ip, text)
+                            conection.send(text.encode('utf-8'))
                     except:
                         break
                         
-                conexao.close()
-                servidor.close()
+                conection.close()
+                server.close()
             except Exception as e:
-                print(f"❌ Falha nos transmissores: {e}")
+                print(f"❌ Transmitter failure: {e}")
 
-# Comando conect
-        elif comando == "conect":
+# Comand conect
+        elif comand == "conect":
             import socket
             import threading
             from datetime import datetime
             
-            if not argumento:
-                print("\n\033[1;35m========== 📻 RÁDIO FANTASMA ==========\033[0m")
-                print("❌ Uso correto: conectar [IP_DA_TORRE]")
-                print("Exemplo: conectar 192.168.0.15")
+            if not argument:
+                print("\n\033[1;35m========== 📻 GHOST RADIO ==========\033[0m")
+                print("❌ Correct usage: connect to [TOWER_IP]")
+                print("Example: connect to 192.168.0.15")
                 print("\033[1;35m=======================================\033[0m\n")
                 continue
                 
-            ip_alvo = argumento.strip()
-            porta_secreta = 9999
+            target_ip = argument.strip()
+            secret_door = 9999
             
-            arquivo_log = os.path.join(FOLDER_DATAS, "interceptacoes_radio.log")
+            archive_log = os.path.join(FOLDER_DATAS, "interceptations_radio.log")
             
-            def gravar_log(remetente, mensagem):
-                agora = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+            def record_log(sender, message):
+                now = datetime.now().strftime("%d/%m/%Y %H:%M:%S")
                 try:
-                    with open(arquivo_log, "a", encoding="utf-8") as f:
-                        f.write(f"[{agora}] {remetente}: {mensagem}\n")
+                    with open(archive_log, "a", encoding="utf-8") as f:
+                        f.write(f"[{now}] {sender}: {message}\n")
                 except:
                     pass
             
-            print(f"\n\033[1;35m========== 📻 RÁDIO FANTASMA (INFILTRADOR) ==========\033[0m")
-            print(f"Tentando sintonizar na frequência do IP {ip_alvo}...")
+            print(f"\n\033[1;35m========== 📻 GHOST RADIO (INFILTRATOR) ==========\033[0m")
+            print(f"Trying to tune to the IP frequency {target_ip}...")
             
-            cliente = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             try:
-                cliente.connect((ip_alvo, porta_secreta))
+                client.connect((target_ip, secret_door))
                 
-                print(f"✅ \033[1;32mInfiltração bem sucedida!\033[0m")
-                print("Chat Ponto-a-Ponto iniciado. Tudo está sendo gravado nos logs.")
+                print(f"✅ \033[1;32mSuccessful infiltration!\033[0m")
+                print("Point-to-point chat initiated. Everything is being recorded in the logs.")
                 print("\033[1;35m=====================================================\033[0m\n")
                 
-                gravar_log("SISTEMA", f"=== VOCÊ SE INFILTROU NO IP {ip_alvo} ===")
+                record_log("SISTEM", f"=== YOU INFILTRATED THE IP {target_ip} ===")
                 
-                chat_ativo = [True]
+                active_chat = [True]
                 
-                def receber_mensagens(conn):
-                    while chat_ativo[0]:
+                def receive_messages(conn):
+                    while active_chat[0]:
                         try:
                             msg = conn.recv(1024).decode('utf-8')
                             if not msg or msg.lower() == 'sair':
-                                print("\n❌ \033[1;31mA torre desligou a transmissão.\033[0m Pressione Enter para voltar.")
-                                gravar_log("SISTEMA", "=== A TORRE DESCONECTOU ===")
-                                chat_ativo[0] = False
+                                print("\n❌ \033[1;31mThe tower shut down the transmission.\033[0m Press Enter to go back.")
+                                record_log("SISTEM", "=== THE TOWER DISCONNECTED ===")
+                                active_chat[0] = False
                                 break
-                            print(f"\n\033[1;36m[Parceiro]:\033[0m \033[1;37m{msg}\033[0m")
-                            gravar_log(ip_alvo, msg)
+                            print(f"\n\033[1;36m[Partner]:\033[0m \033[1;37m{msg}\033[0m")
+                            record_log(target_ip, msg)
                         except:
                             break
                             
-                threading.Thread(target=receber_mensagens, args=(cliente,), daemon=True).start()
+                threading.Thread(target=receive_messages, args=(client,), daemon=True).start()
                 
-                while chat_ativo[0]:
+                while active_chat[0]:
                     try:
-                        texto = input()
-                        if not chat_ativo[0]: break
+                        text = input()
+                        if not active_chat[0]: break
                         
-                        if texto.lower() == 'sair':
-                            cliente.send("sair".encode('utf-8'))
-                            chat_ativo[0] = False
-                            gravar_log("SISTEMA", "=== VOCÊ CORTOU A LINHA ===")
-                            print("Desconectando da torre...")
+                        if text.lower() == 'sair':
+                            client.send("sair".encode('utf-8'))
+                            active_chat[0] = False
+                            record_log("SISTEM", "=== YOU CUT THE LINE ===")
+                            print("Disconnecting from the tower...")
                             break
                             
-                        if texto.strip():
+                        if text.strip():
                             sys.stdout.write("\033[F\033[K")
-                            print(f"\033[1;32m[Você]:\033[0m \033[1;37m{texto}\033[0m")
-                            gravar_log("VOCÊ", texto)
-                            cliente.send(texto.encode('utf-8'))
+                            print(f"\033[1;32m[You]:\033[0m \033[1;37m{text}\033[0m")
+                            record_log("YOU", text)
+                            client.send(text.encode('utf-8'))
                     except:
                         break
                         
-                cliente.close()
+                client.close()
             except ConnectionRefusedError:
-                print(f"❌ \033[1;31mConexão Recusada:\033[0m O IP {ip_alvo} não está rodando o comando 'listen'.")
+                print(f"❌ \033[1;31mConnection Refused:\033[0m The IP address {target_ip} is not running the 'listen' command.")
             except Exception as e:
-                print(f"❌ Erro de conexão: {e}")
+                print(f"❌ Connection error: {e}")
 
-# Comando server
-        elif comando == "server":
-            if argumento in ["web", "ftp"]:
-                # Truque para pegar o IP local
+# Comand server
+        elif comand == "server":
+            if argument in ["web", "ftp"]:
+                # Trick to get the local IP address
                 try:
                     import socket
                     s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                     s.connect(("8.8.8.8", 80))
-                    ip_local = s.getsockname()[0]
+                    local_ip = s.getsockname()[0]
                     s.close()
                 except Exception:
-                    ip_local = "127.0.0.1"
+                    local_ip = "127.0.0.1"
 
-                # --- OPÇÃO 1: SERVIDOR WEB (Navegador) ---
-                if argumento == "web":
+                # --- OPTION 1: WEB SERVER (Browser) ---
+                if argument == "web":
                     import http.server
                     import socketserver
-                    PORTA = 8000
+                    PORT = 8000
                     Handler = http.server.SimpleHTTPRequestHandler
                     socketserver.TCPServer.allow_reuse_address = True
                     
                     try:
-                        with socketserver.TCPServer(("", PORTA), Handler) as httpd:
-                            print(f"\n--- Servidor WEB PyOS Iniciado ---")
-                            print(f"🔗 Acesse no navegador: http://{ip_local}:{PORTA}")
-                            print("Pressione 'Ctrl + C' no terminal para desligar.")
+                        with socketserver.TCPServer(("", PORT), Handler) as httpd:
+                            print(f"\n--- PyOS Web Server Started ---")
+                            print(f"🔗 Access via browser: http://{local_ip}:{PORT}")
+                            print("Press 'Ctrl + C' in the terminal to disconnect.")
                             httpd.serve_forever()
                     except KeyboardInterrupt:
-                        print("\nServidor WEB desligado com sucesso.")
+                        print("\nWeb server successfully shut down.")
                     except Exception as e:
-                        print(f"\nErro no servidor WEB: {e}")
+                        print(f"\nWeb server error: {e}")
 
-                # --- OPÇÃO 2: SERVIDOR FTP (Explorador de Arquivos) ---
-                elif argumento == "ftp":
+                # --- OPTION 2: FTP SERVER (File Explorer) ---
+                elif argument == "ftp":
                     try:
-                        # Importa as ferramentas do pyftpdlib
+                        # Import the tools from pyftpdlib
                         from pyftpdlib.authorizers import DummyAuthorizer
                         from pyftpdlib.handlers import FTPHandler
                         from pyftpdlib.servers import FTPServer
                         
-                        PORTA_FTP = 2121
+                        PORT_FTP = 2121
                         
-                        # Configura as permissões (lê e escreve)
+                        # Configure permissions (read and write)
                         authorizer = DummyAuthorizer()
-                        # 'elradfmw' significa permissão total: ler, escrever, deletar, criar pastas
+                        # 'elradfmw' means full permission: read, write, delete, create folders.
                         authorizer.add_anonymous(os.getcwd(), perm='elradfmw')
                         
                         handler = FTPHandler
                         handler.authorizer = authorizer
                         
-                        # Desliga as mensagens chatas de log do FTP para não poluir sua tela
+                        # Turn off annoying FTP log messages to avoid cluttering your screen.
                         import logging
                         logging.getLogger("pyftpdlib").setLevel(logging.WARNING)
                         
-                        server = FTPServer((ip_local, PORTA_FTP), handler)
+                        server = FTPServer((local_ip, PORT_FTP), handler)
                         
-                        print(f"\n--- Servidor FTP PyOS Iniciado ---")
-                        print(f"Pasta compartilhada: {os.getcwd()}")
-                        print(f"Abra o Explorador de Arquivos (Windows) e digite na barra de endereços lá em cima:")
-                        print(f"🔗 ftp://{ip_local}:{PORTA_FTP}")
+                        print(f"\n--- PyOS FTP Server Started ---")
+                        print(f"Shared folder: {os.getcwd()}")
+                        print(f"Open File Explorer (Windows) and type in the address bar at the top:")
+                        print(f"🔗 ftp://{local_ip}:{PORT_FTP}")
                         print("------------------------------------------")
-                        print("Pressione 'Ctrl + C' no terminal para desligar.")
+                        print("Press 'Ctrl + C' in the terminal to disconnect.")
                         
                         server.serve_forever()
                         
                     except ImportError:
-                        print("Erro: A biblioteca 'pyftpdlib' não está instalada.")
-                        print("Abra o terminal do seu PC e digite: pip install pyftpdlib")
+                        print("Error: The 'pyftpdlib' library is not installed.")
+                        print("Open your PC's terminal and type: pip install pyftpdlib")
                     except KeyboardInterrupt:
-                        print("\nServidor FTP desligado com sucesso. Voltando ao PyOS.")
+                        print("\nFTP server successfully shut down. Returning to PyOS.")
                     except Exception as e:
-                        print(f"\nErro no servidor FTP: {e}")
+                        print(f"\nFTP server error: {e}")
             else:
-                print("Por favor, escolha o modo. Exemplo: server web OU server ftp")
+                print("Please choose the mode. Example: web server OR ftp server.")
 
-# Comando ai
-        elif comando == "ai":
-            print("\n--- Iniciando Conexão Neural (PyOS AI) ---")
+# Comand ai
+        elif comand == "ai":
+            print("\n--- Initiating Neural Connection (PyOS AI) ---")
             
-            arquivo_config = os.path.join(FOLDER_DATAS, "config_db.json")
-            # Carrega as configurações para ver se já temos a chave da API
-            if os.path.exists(arquivo_config):
-                with open(arquivo_config, 'r', encoding='utf-8') as f:
-                    banco_config = json.load(f)
+            archive_config = os.path.join(FOLDER_DATAS, "config_db.json")
+            # Load the settings to see if we already have the API key.
+            if os.path.exists(archive_config):
+                with open(archive_config, 'r', encoding='utf-8') as f:
+                    data_config = json.load(f)
             else:
-                banco_config = {}
+                data_config = {}
 
-            # Verifica se o usuário atual já salvou uma chave de API
-            chave_api = banco_config.get(f"{usuario}_api_key", "")
+            # Checks if the current user has already saved an API key.
+            api_key = data_config.get(f"{user}_api_key", "")
 
-            # Se não tem chave, pede para o usuário digitar e salva no arquivo
-            if not chave_api:
-                print("Para usar a IA, você precisa de uma chave gratuita do Google AI Studio.")
-                print("Pegue a sua em: https://aistudio.google.com/app/apikey")
-                chave_api = input("Cole sua Chave de API aqui (ou digite 'sair' para cancelar): ").strip()
+            # If there is no key, it asks the user to type it in and saves it to the file.
+            if not api_key:
+                print("To use AI, you need a free Google AI Studio key.")
+                print("Get yours at: https://aistudio.google.com/app/apikey")
+                api_key = input("Paste your API Key here (or type 'log out' to cancel): ").strip()
                 
-                if chave_api.lower() == 'sair':
+                if api_key.lower() == 'leave':
                     continue
                 
-                # Salva a chave atrelada ao usuário
-                banco_config[f"{usuario}_api_key"] = chave_api
-                with open(arquivo_config, 'w', encoding='utf-8') as f:
-                    json.dump(banco_config, f, indent=4)
-                print("Chave salva com sucesso no seu perfil!")
+                # Saves the key associated with the user.
+                data_config[f"{user}_api_key"] = api_key
+                with open(archive_config, 'w', encoding='utf-8') as f:
+                    json.dump(data_config, f, indent=4)
+                print("Key successfully saved to your profile!")
 
             try:
-                # Configura a IA com a chave do usuário
-                genai.configure(api_key=chave_api)
+                # Configure the AI ​​with the user's key.
+                genai.configure(api_key=api_key)
                 
-                print("Procurando um modelo de IA compatível nos servidores do Google...", end="\r")
+                print("Looking for a compatible AI model on Google's servers...", end="\r")
                 
-                # --- NOVO: BUSCA AUTOMÁTICA DE MODELO ---
-                nome_modelo = None
+                # --- AUTOMATIC MODEL SEARCH ---
+                name_model = None
                 for m in genai.list_models():
-                    # Procura o primeiro modelo que suporte geração de texto ('generateContent')
+                    # Find the first template that supports text generation ('generateContent')
                     if 'generateContent' in m.supported_generation_methods:
-                        nome_modelo = m.name
-                        # Vamos dar preferência para os modelos mais novos (1.5) se existirem
-                        if '1.5' in nome_modelo:
+                        name_model = m.name
+                        # We will give preference to the newest models (1.5) if they exist.
+                        if '1.5' in name_model:
                             break 
                             
-                if not nome_modelo:
-                    print("Erro Crítico: Nenhum modelo de texto disponível para a sua conta/chave.")
+                if not name_model:
+                    print("Critical Error: No text template available for your account/key.")
                     continue
                     
-                # Inicia o modelo que o PyOS descobriu sozinho!
-                modelo = genai.GenerativeModel(nome_modelo)
+                # Start the model that PyOS discovered on its own!
+                model = genai.GenerativeModel(name_model)
                 # ----------------------------------------
                 
-                # Limpa a linha de busca
+                # Clear the search bar
                 print(" " * 60, end="\r")
                 
-                chat = modelo.start_chat(history=[])
-                print(f"\nConexão estabelecida usando o modelo: {nome_modelo}")
-                print("Você está conversando com o Assistente PyOS. Digite ':q' ou 'sair' para voltar.")
+                chat = model.start_chat(history=[])
+                print(f"\nConnection established using the template: {name_model}")
+                print("You are currently chatting with the PyOS Assistant. Type ':q' or 'exit' to return.")
                 print("-" * 65)
                 
                 while True:
-                    pergunta = input(f"\n[{usuario}] > ")
+                    question = input(f"\n[{user}] > ")
                     
-                    if pergunta.strip().lower() in [':q', 'sair']:
-                        print("Encerrando a conexão neural... Voltando ao PyOS.")
+                    if question.strip().lower() in [':q', 'leave']:
+                        print("Closing the neural connection... Back to PyOS.")
                         break
-                    if not pergunta.strip():
+                    if not question.strip():
                         continue
                         
-                    print("[PyOS AI] Pensando...", end="\r")
-                    resposta = chat.send_message(pergunta)
+                    print("[PyOS AI] Thinking...", end="\r")
+                    answer = chat.send_message(question)
                     print(" " * 20, end="\r") 
-                    print(f"[PyOS AI] {resposta.text}")
+                    print(f"[PyOS AI] {answer.text}")
                     
             except Exception as e:
-                print(f"\nErro de conexão com a IA: {e}")
-                print("DICA: Se a sua chave estiver inválida, abra o arquivo 'config_db.json' e apague a linha da sua API key para o sistema pedir uma nova.")
+                print(f"\nConnection error with AI: {e}")
+                print("TIP: If your key is invalid, open the 'config_db.json' file and delete the line containing your API key so the system will request a new one.")
 
-# Comando news
-        elif comando == "news":
-            print("\n--- Central de Notícias PyOS ---")
-            print("Conectando aos satélites de informação... 📡\n")
+# Comand news
+        elif comand == "news":
+            print("\n--- PyOS News Center ---")
+            print("Connecting to information satellites... 📡\n")
             
             try:
-                # Usamos o RSS do Google News focado nas principais notícias (em Português)
+                # We use Google News RSS, which focuses on the top news stories (in Portuguese).
                 url = "https://news.google.com/rss?hl=pt-BR&gl=BR&ceid=BR:pt-419"
                 
-                # Disfarçamos o PyOS de navegador normal para o servidor não bloquear a nossa conexão
-                requisicao = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                # We disguised PyOS as a normal browser so the server wouldn't block our connection.
+                request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
                 
-                # Baixa o arquivo XML com as notícias
-                with urllib.request.urlopen(requisicao) as resposta:
-                    dados_xml = resposta.read()
+                # Download the XML file with the news.
+                with urllib.request.urlopen(request) as answer:
+                    datas_xml = answer.read()
                     
-                # A mágica do Python: Transforma o texto XML numa árvore de dados que podemos navegar
-                raiz = ET.fromstring(dados_xml)
+                # The magic of Python: It transforms XML text into a navigable data tree.
+                source = ET.fromstring(datas_xml)
                 
-                # Procura por todos os 'itens' (que são as notícias) dentro do 'canal' do RSS
-                noticias_encontradas = raiz.findall('./channel/item')
+                # Search for all 'items' (which are the news items) within the RSS 'channel'.
+                news_found = source.findall('./channel/item')
                 
-                if not noticias_encontradas:
-                    print("Nenhuma notícia encontrada no momento.")
+                if not news_found:
+                    print("No news found at the moment.")
                 else:
-                    # Pega apenas as 5 primeiras notícias da lista
-                    for i, item in enumerate(noticias_encontradas[:5], 1):
-                        titulo = item.find('title').text
+                    # Just grab the first 5 news items from the list.
+                    for i, item in enumerate(news_found[:5], 1):
+                        tittle = item.find('title').text
                         link = item.find('link').text
                         
                         # Imprime o título e o link formatados
-                        print(f"{i}. 📰 {titulo}")
+                        print(f"{i}. 📰 {tittle}")
                         print(f"   🔗 {link}\n")
                         
                 print("-" * 65)
-                print("DICA: Segure a tecla 'Ctrl' (ou 'Cmd' no Mac) e clique no link para abrir no seu navegador real!")
+                print("TIP: Hold down the 'Ctrl' key (or 'Cmd' on a Mac) and click the link to open it in your actual browser!")
                 
             except Exception as e:
-                print(f"Erro ao buscar notícias: {e}")
-                print("DICA: Verifique a sua conexão com a internet.")
+                print(f"Error searching for news: {e}")
+                print("TIP: Check your internet connection.")
 
-# Comando price
-        elif comando == "price":
-            print(f"\n\033[1;32m========== 📈 PAINEL FINANCEIRO PyOS ==========\033[0m")
-            print("Conectando aos servidores da Bolsa de Valores...\n")
+# Comand price
+        elif comand == "price":
+            print(f"\n\033[1;32m========== 📈 FINANCIAL DASHBOARD PyOS ==========\033[0m")
+            print("Connecting to the Stock Exchange servers...\n")
             
-            # Define qual moeda buscar (se não digitar nada, mostra todas)
-            moeda_escolhida = argumento.upper().strip() if argumento else "TODAS"
+            # Define which currency to search for (if you don't type anything, it shows all currencies).
+            chosen_currency = argument.upper().strip() if argument else "ALL"
             
             try:
-                # URL da AwesomeAPI que traz as cotações em tempo real para o BRL (Real Brasileiro)
+                # AwesomeAPI URL that provides real-time exchange rates for the BRL (Brazilian Real).
                 url = "https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL,BTC-BRL"
-                requisicao = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
                 
-                with urllib.request.urlopen(requisicao) as resposta:
-                    # Lê a resposta da internet e converte o JSON para um dicionário Python
-                    dados = json.loads(resposta.read().decode('utf-8'))
+                with urllib.request.urlopen(request) as answer:
+                    # Reads the response from the internet and converts the JSON into a Python dictionary.
+                    datas = json.loads(answer.read().decode('utf-8'))
                     
-                # Função interna para formatar e imprimir cada moeda bonitinha na tela
-                def exibir_moeda(sigla, nome, dados_moeda):
-                    valor = float(dados_moeda['bid'])
-                    variacao = float(dados_moeda['pctChange'])
+                # Internal function to format and print each coin nicely on the screen.
+                def display_currency(acronym, name, currency_data):
+                    value = float(currency_data['bid'])
+                    variation = float(currency_data['pctChange'])
                     
-                    # Define a cor da variação (Verde para alta, Vermelho para baixa)
-                    cor_var = "\033[1;32m▲" if variacao > 0 else "\033[1;31m▼"
+                    # Define the color of the variation (Green for high, Red for low)
+                    color_var = "\033[1;32m▲" if variation > 0 else "\033[1;31m▼"
                     
-                    # Formata o número para o padrão brasileiro (R$ 5.12)
-                    if sigla == "BTC":
-                        # O Bitcoin é um valor muito alto, então formatamos com separador de milhar
-                        valor_str = f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+                    # Format the number to the Brazilian standard (R$ 5.12)
+                    if acronym == "BTC":
+                        # Bitcoin is a very high value, so we formatted it with a thousands separator.
+                        value_str = f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
                     else:
-                        valor_str = f"{valor:.2f}".replace(".", ",")
+                        value_str = f"{value:.2f}".replace(".", ",")
                         
-                    print(f"💰 \033[1;37m{nome} ({sigla}):\033[0m R$ {valor_str}  {cor_var} {variacao}%\033[0m")
+                    print(f"💰 \033[1;37m{name} ({acronym}):\033[0m R$ {value_str}  {color_var} {variation}%\033[0m")
 
-                # Exibe de acordo com o que o usuário pediu
-                if moeda_escolhida in ["USD", "TODAS"]:
-                    exibir_moeda("USD", "Dólar Comercial", dados['USDBRL'])
-                if moeda_escolhida in ["EUR", "TODAS"]:
-                    exibir_moeda("EUR", "Euro          ", dados['EURBRL'])
-                if moeda_escolhida in ["BTC", "TODAS"]:
-                    exibir_moeda("BTC", "Bitcoin       ", dados['BTCBRL'])
+                # Displays according to the user's request.
+                if chosen_currency in ["USD", "ALL"]:
+                    display_currency("USD", "Dólar Comercial", datas['USDBRL'])
+                if chosen_currency in ["EUR", "ALL"]:
+                    display_currency("EUR", "Euro          ", datas['EURBRL'])
+                if chosen_currency in ["BTC", "ALL"]:
+                    display_currency("BTC", "Bitcoin       ", datas['BTCBRL'])
                 
-                if moeda_escolhida not in ["USD", "EUR", "BTC", "TODAS"]:
-                    print(f"❌ Moeda '{moeda_escolhida}' não encontrada no acesso rápido.")
-                    print("Tente digitar apenas: cotacao usd, cotacao eur ou cotacao btc.")
+                if chosen_currency not in ["USD", "EUR", "BTC", "TODAS"]:
+                    print(f"❌ Currency '{chosen_currency}' not found in quick access.")
+                    print("Try typing only: usd quote, eur quote or btc quote.")
                     
             except Exception as e:
-                print(f"\033[1;31mErro ao acessar os dados financeiros: {e}\033[0m")
-                print("DICA: Verifique a sua conexão com a internet ou se a API está no ar.")
+                print(f"\033[1;31mError accessing financial data: {e}\033[0m")
+                print("TIP: Check your internet connection or if the API is up and running.")
                 
             print(f"\033[1;32m===============================================\033[0m\n")
 
-# Comando browse
-        elif comando == "browse":
-            if argumento:
+# Comand browse
+        elif comand == "browse":
+            if argument:
                 # \033[1;36m deixa o texto em Ciano Negrito, e \033[0m reseta a cor
-                print(f"\n\033[1;36m========== 🌐 NAVEGADOR PyOS LYNX ==========\033[0m")
+                print(f"\n\033[1;36m========== 🌐 PyOS LYNX BROWSER ==========\033[0m")
                 
-                url = argumento if argumento.startswith('http') else 'http://' + argumento
-                print(f"\033[33mAcessando:\033[0m {url}\n") # \033[33m é Amarelo
+                url = argument if argument.startswith('http') else 'http://' + argument
+                print(f"\033[33mAccessing:\033[0m {url}\n") # \033[33m is Yellow
                 
                 try:
-                    requisicao = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                    request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
                     
-                    with urllib.request.urlopen(requisicao) as resposta:
-                        html_bruto = resposta.read().decode('utf-8', errors='ignore')
+                    with urllib.request.urlopen(request) as answer:
+                        html_brute = answer.read().decode('utf-8', errors='ignore')
                         
-                    soup = BeautifulSoup(html_bruto, 'html.parser')
+                    soup = BeautifulSoup(html_brute, 'html.parser')
                     
-                    for elemento_lixo in soup(["script", "style", "nav", "footer", "header", "aside", "form"]):
-                        elemento_lixo.extract()
+                    for garbage_element in soup(["script", "style", "nav", "footer", "header", "aside", "form"]):
+                        garbage_element.extract()
                         
-                    texto_limpo = soup.get_text(separator='\n')
-                    linhas_formatadas = [linha.strip() for linha in texto_limpo.splitlines() if linha.strip()]
+                    clean_text = soup.get_text(separator='\n')
+                    formatted_lines = [linha.strip() for linha in clean_text.splitlines() if linha.strip()]
                     
-                    # --- A MÁGICA DA FORMATAÇÃO DE TEXTO ---
-                    linhas_exibidas = 0
-                    limite_linhas = 40 # Reduzimos um pouco o limite para a leitura ficar mais focada
+                    # --- The Magic of Text Formatting ---
+                    displayed_lines = 0
+                    limit_lines = 40 # We reduced the limit slightly to make the reading more focused.
                     
-                    for linha in linhas_formatadas:
-                        if linhas_exibidas >= limite_linhas:
+                    for line in formatted_lines:
+                        if displayed_lines >= limite_linhas:
                             break
                             
-                        # Se a linha for muito curta (como um menu que sobrou), ignoramos para manter a tela limpa
-                        if len(linha) < 15:
+                        # If the line is too short (like a leftover menu), we ignore it to keep the screen clean.
+                        if len(line) < 15:
                             continue
                             
-                        # O textwrap vai "dobrar" o texto para não passar de 80 caracteres de largura
-                        paragrafo_bonito = textwrap.fill(linha, width=80)
+                        # The text wrap will "fold" the text so that it doesn't exceed 80 characters in width.
+                        beautiful_paragraph = textwrap.fill(line, width=80)
                         
-                        print(paragrafo_bonito)
-                        print() # Imprime uma linha em branco para separar os parágrafos
+                        print(beautiful_paragraph)
+                        print() # Print a blank line to separate paragraphs.
                         
-                        # Conta quantas linhas reais esse parágrafo ocupou na tela
-                        linhas_exibidas += paragrafo_bonito.count('\n') + 1 
+                        # Count how many actual lines this paragraph occupied on the screen.
+                        displayed_lines += beautiful_paragraph.count('\n') + 1 
                     # ---------------------------------------
                     
-                    if len(linhas_formatadas) > limite_linhas:
-                        print(f"\033[1;30m[... Fim da prévia do Modo Leitura ...]\033[0m")
+                    if len(formatted_lines) > limite_linhas:
+                        print(f"\033[1;30m[... End of Reading Mode preview ...]\033[0m")
                         
                     print(f"\033[1;36m=============================================\033[0m\n")
                     
                 except Exception as e:
-                    print(f"\033[1;31mErro ao carregar a página: {e}\033[0m") # Vermelho para erro
-                    print("DICA: Verifique se o link está correto (ex: pt.wikipedia.org).")
+                    print(f"\033[1;31mError loading page: {e}\033[0m") # Red for error
+                    print("TIP: Check if the link is correct (e.g., pt.wikipedia.org).")
             else:
-                print("Por favor, digite o link do site. Exemplo: navegar pt.wikipedia.org/wiki/Python")
+                print("Please enter the website link. Example: browse pt.wikipedia.org/wiki/Python")
 
-# Comando list
-        elif comando == "list":
-            print(f"\nConteúdo do diretório atual ({os.getcwd()}):")
+# Comand list
+        elif comand == "list":
+            print(f"\nCurrent directory contents ({os.getcwd()}):")
             try:
-                # Pega todos os itens (pastas e arquivos)
-                itens = os.listdir('.')
+                # Get all items (folders and files)
+                items = os.listdir('.')
                 
-                # Primeiro, mostramos as pastas
-                for item in itens:
+                # First, we show the folders.
+                for item in items:
                     if os.path.isdir(item):
-                        print(f" [PASTA]   {item}")
+                        print(f" [FOLDER]   {item}")
                         
-                # Depois, mostramos os arquivos
-                for item in itens:
+                # Next, we show the files.
+                for item in items:
                     if os.path.isfile(item):
-                        print(f" [ARQUIVO] {item}")
+                        print(f" [ARCHIVE] {item}")
                         
-                if not itens:
-                    print(" (A pasta está vazia)")
+                if not items:
+                    print(" (The folder is empty)")
                     
             except Exception as e:
-                print(f"Erro ao ler diretório: {e}")
+                print(f"Error reading directory: {e}")
 
-# Comando track
-        elif comando == "track":
-            if argumento:
-                # \033[1;36m é a cor Ciano (Azul claro brilhante)
-                print(f"\n\033[1;36m========== 🌍 RASTREADOR GLOBAL PyOS ==========\033[0m")
-                print(f"A triangular o alvo: {argumento}...\n")
+# Comand track
+        elif comand == "track":
+            if argument:
+                # \033[1;36m is the color Cyan (bright light blue)
+                print(f"\n\033[1;36m========== 🌍 PyOS GLOBAL TRACKER ==========\033[0m")
+                print(f"Triangulate the target: {argument}...\n")
                 
                 try:
-                    # Se o utilizador digitar com "https://", limpamos para o radar funcionar bem
-                    alvo = argumento.replace("https://", "").replace("http://", "").split("/")[0]
+                    # If the user types with "https://", we clear the code so the radar works properly.
+                    target = argument.replace("https://", "").replace("http://", "").split("/")[0]
                     
-                    # API gratuita de geolocalização (não precisa de chave)
-                    url = f"http://ip-api.com/json/{alvo}"
-                    requisicao = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+                    # Free geolocation API (no key required)
+                    url = f"http://ip-api.com/json/{target}"
+                    request = urllib.request.Request(url, headers={'User-Agent': 'Mozilla/5.0'})
                     
-                    with urllib.request.urlopen(requisicao) as resposta:
-                        dados = json.loads(resposta.read().decode('utf-8'))
+                    with urllib.request.urlopen(request) as answer:
+                        datas = json.loads(answer.read().decode('utf-8'))
                         
-                    # Verifica se a API conseguiu encontrar o alvo com sucesso
-                    if dados.get("status") == "success":
-                        # Imprime os dados formatados com cores (Amarelo para as etiquetas)
-                        print(f"📍 \033[1;33mIP Alvo:\033[0m      {dados.get('query')}")
-                        print(f"🏙️ \033[1;33mCidade:\033[0m       {dados.get('city')} - {dados.get('regionName')}")
-                        print(f"🏳️ \033[1;33mPaís:\033[0m         {dados.get('country')} ({dados.get('countryCode')})")
-                        print(f"🏢 \033[1;33mProvedor:\033[0m     {dados.get('isp')}")
-                        print(f"🗺️ \033[1;33mCoordenadas:\033[0m  Lat {dados.get('lat')}, Lon {dados.get('lon')}")
-                        print(f"🕒 \033[1;33mFuso Horário:\033[0m {dados.get('timezone')}")
+                    # Checks if the API successfully found the target.
+                    if datas.get("status") == "success":
+                        # Prints the formatted data in color (Yellow for labels).
+                        print(f"📍 \033[1;33mIP Target:\033[0m      {datas.get('query')}")
+                        print(f"🏙️ \033[1;33mCity:\033[0m       {datas.get('city')} - {datas.get('regionName')}")
+                        print(f"🏳️ \033[1;33mCountry:\033[0m         {datas.get('country')} ({datas.get('countryCode')})")
+                        print(f"🏢 \033[1;33mProvider:\033[0m     {datas.get('isp')}")
+                        print(f"🗺️ \033[1;33mCoordinates:\033[0m  Lat {datas.get('lat')}, Lon {datas.get('lon')}")
+                        print(f"🕒 \033[1;33mTime zone:\033[0m {datas.get('timezone')}")
                         
-                        # Easter Egg: Link direto para o mapa
-                        link_mapa = f"https://www.google.com/maps/search/?api=1&query={dados.get('lat')},{dados.get('lon')}"
-                        print(f"\n🔗 \033[1;34mSatélite (Clique com Ctrl):\033[0m {link_mapa}")
+                        # Easter Egg: Direct link to the map
+                        link_map = f"https://www.google.com/maps/search/?api=1&query={datas.get('lat')},{datas.get('lon')}"
+                        print(f"\n🔗 \033[1;34mSatellite (Ctrl-click):\033[0m {link_map}")
                     else:
-                        print(f"❌ \033[1;31mFalha na triangulação:\033[0m Não foi possível localizar '{alvo}'.")
+                        print(f"❌ \033[1;31mTriangulation failure:\033[0m Unable to locate '{target}'.")
                         
                 except Exception as e:
-                    print(f"\033[1;31mErro de conexão com os satélites: {e}\033[0m")
-                    print("DICA: Verifique a sua conexão com a internet.")
+                    print(f"\033[1;31mSatellite connection error: {e}\033[0m")
+                    print("TIP: Check your internet connection.")
                     
                 print(f"\033[1;36m===============================================\033[0m\n")
             else:
-                print("Por favor, digite um IP ou site. Exemplo: rastrear google.com ou rastrear 8.8.8.8")
+                print("Please enter an IP address or website. Example: track google.com or track 8.8.8.8")
 
-# Comando wiki
-        elif comando == "wiki":
-            if argumento:
+# Comand wiki
+        elif comand == "wiki":
+            if argument:
                 # Cor Azul Escuro/Anil (\033[1;34m) para combinar com a identidade da Wikipédia
-                print(f"\n\033[1;34m========== 📚 ORÁCULO WIKIPÉDIA ==========\033[0m")
-                print(f"Consultando os arquivos da humanidade sobre: '{argumento}'...\n")
+                print(f"\n\033[1;34m========== 📚 WIKIPEDIA ORACLE ==========\033[0m")
+                print(f"Consulting humanity's archives on: '{argument}'...\n")
                 
                 try:
-                    # Prepara o nome que o usuário digitou para virar um link válido (ex: "Buraco negro" vira "Buraco%20negro")
-                    termo_busca = urllib.parse.quote(argumento.strip().capitalize())
+                    # Prepare the name the user typed to become a valid link (e.g., "Black hole" becomes "Black%20hole")
+                    search_term = urllib.parse.quote(argument.strip().capitalize())
                     
-                    # API oficial da Wikipédia que devolve apenas o Resumo em Português
-                    url = f"https://pt.wikipedia.org/api/rest_v1/page/summary/{termo_busca}"
+                    # The official Wikipedia API that returns only the Portuguese abstract.
+                    url = f"https://pt.wikipedia.org/api/rest_v1/page/summary/{search_term}"
                     
-                    # A Wikipédia exige um User-Agent para saber quem está acessando
-                    requisicao = urllib.request.Request(url, headers={'User-Agent': 'PyOS/1.0 (Terminal Hacking)'})
+                    # Wikipedia requires a User-Agent to know who is accessing it.
+                    request = urllib.request.Request(url, headers={'User-Agent': 'PyOS/1.0 (Terminal Hacking)'})
                     
-                    with urllib.request.urlopen(requisicao) as resposta:
-                        dados = json.loads(resposta.read().decode('utf-8'))
+                    with urllib.request.urlopen(request) as answer:
+                        datas = json.loads(answer.read().decode('utf-8'))
                         
-                    # Se a API retornou um resumo (extract)
-                    if 'extract' in dados:
-                        resumo = dados['extract']
+                    # If the API returned a summary (extract)
+                    if 'extract' in datas:
+                        resume = datas['extract']
                         
-                        # Usa o textwrap para formatar o texto em 80 colunas, ficando igual a um livro
-                        paragrafos = textwrap.wrap(resumo, width=80)
-                        for linha in paragrafos:
-                            print(linha)
+                        # Use the textwrap to format the text into 80 columns, making it look like a book.
+                        paragraphs = textwrap.wrap(resume, width=80)
+                        for line in paragraphs:
+                            print(line)
                             
-                        # Easter Egg: Deixa o link direto caso você queira ler o resto no navegador
-                        if 'content_urls' in dados and 'desktop' in dados['content_urls']:
-                            link_completo = dados['content_urls']['desktop']['page']
-                            print(f"\n🔗 \033[1;36mLeia o artigo completo em:\033[0m {link_completo}")
+                        # Easter Egg: Here's the direct link in case you want to read the rest in your browser.
+                        if 'content_urls' in datas and 'desktop' in datas['content_urls']:
+                            complete_link = datas['content_urls']['desktop']['page']
+                            print(f"\n🔗 \033[1;36mRead the full article at:\033[0m {complete_link}")
                     else:
-                        print(f"❌ Não encontrei um resumo exato para '{argumento}'.")
+                        print(f"❌ I couldn't find an exact summary for '{argument}'.")
                         
                 except urllib.error.HTTPError as e:
-                    # O erro 404 significa que a página não existe lá na Wikipédia
+                    # Error 404 means that the page does not exist on Wikipedia.
                     if e.code == 404:
-                        print(f"❌ \033[1;31mArtigo não encontrado:\033[0m A Wikipédia não tem uma página exata com o nome '{argumento}'.")
-                        print("DICA: Tente ser mais específico ou verificar a ortografia (ex: wiki Albert Einstein).")
+                        print(f"❌ \033[1;31mArticle not found:\033[0m Wikipedia doesn't have an exact page with that name. '{argument}'.")
+                        print("TIP: Try to be more specific or check your spelling (e.g., wiki Albert Einstein).")
                     else:
-                        print(f"Erro na comunicação com a Wikipédia: {e}")
+                        print(f"Error communicating with Wikipedia: {e}")
                 except Exception as e:
-                    print(f"\033[1;31mErro de conexão: {e}\033[0m")
+                    print(f"\033[1;31mConnection error: {e}\033[0m")
                     
                 print(f"\033[1;34m==========================================\033[0m\n")
             else:
-                print("Por favor, digite o que deseja pesquisar. Exemplo: wiki Inteligência artificial")
+                print("Please type what you want to search for. Example: wiki Artificial intelligence")
 
-# Comando translate
-        elif comando == "translate":
-            if argumento:
-                partes = argumento.split(" ", 1)
+# Comand translate
+        elif comand == "translate":
+            if argument:
+                parts = argument.split(" ", 1)
                 
-                if len(partes) >= 2 and "-" in partes[0]:
-                    idiomas = partes[0].strip() 
-                    texto = partes[1].strip()
+                if len(parts) >= 2 and "-" in parts[0]:
+                    languages = parts[0].strip() 
+                    text = parts[1].strip()
                     
                     try:
-                        origem, destino = idiomas.split("-", 1)
+                        origin, destiny = languages.split("-", 1)
                         
-                        print(f"\n\033[1;35m========== 🌐 TRADUTOR GOOGLE ==========\033[0m")
-                        print(f"Traduzindo de [\033[1;33m{origem.upper()}\033[0m] para [\033[1;33m{destino.upper()}\033[0m]...\n")
+                        print(f"\n\033[1;35m========== 🌐 GOOGLE TRANSLATOR ==========\033[0m")
+                        print(f"Translating from [\033[1;33m{origin.upper()}\033[0m] to [\033[1;33m{destiny.upper()}\033[0m]...\n")
                         
-                        # A MÁGICA: Usando o motor do Google Translate por baixo dos panos!
-                        traducao = GoogleTranslator(source=origem, target=destino).translate(texto)
+                        # THE MAGIC: Using the Google Translate engine behind the scenes!
+                        translation = GoogleTranslator(source=origin, target=destiny).translate(text)
                             
-                        print(f"📝 \033[1;32mOriginal:\033[0m {texto}")
+                        print(f"📝 \033[1;32mOriginal:\033[0m {text}")
                         
-                        print(f"✨ \033[1;36mTradução:\033[0m")
-                        linhas_traducao = textwrap.wrap(traducao, width=75)
-                        for linha in linhas_traducao:
-                            print(f"   {linha}")
+                        print(f"✨ \033[1;36mTranslation:\033[0m")
+                        lines_translation = textwrap.wrap(translation, width=75)
+                        for line in lines_translation:
+                            print(f"   {line}")
                             
                     except ValueError:
-                        print("❌ Formato de idioma inválido. Use hífen. Exemplo: en-pt, pt-en")
+                        print("❌ Invalid language format. Use a hyphen. Example: en-pt, pt-en")
                     except Exception as e:
-                        print(f"\033[1;31mErro na tradução: {e}\033[0m")
-                        print("DICA: Verifique se as siglas dos idiomas estão corretas (ex: 'en', 'pt', 'es').")
+                        print(f"\033[1;31mTranslation error: {e}\033[0m")
+                        print("TIP: Check that the language abbreviations are correct (e.g., 'en', 'pt', 'es').")
                         
                     print(f"\033[1;35m========================================\033[0m\n")
                 else:
-                    print("Formato inválido. Use: translate [origem]-[destino] [texto]")
-                    print("Exemplo: translate en-pt The quick brown fox jumps over the lazy dog")
+                    print("Invalid format. Use: translate [source]-[destination] [text]")
+                    print("Example: translate en-pt The quick brown fox jumps over the lazy dog")
             else:
-                print("Por favor, digite o idioma e o texto. Ex: translate pt-en Olá mundo")
+                print("Please enter the language and text. Ex: translate pt-en Hello world")
 
-# Comando cd
-        elif comando == "cd":
-            if argumento:
+# Comand cd
+        elif comand == "cd":
+            if argument:
                 try:
-                    # Muda o diretório atual para o que o usuário digitou
-                    os.chdir(argumento)
-                    print(f"Diretório alterado para: {os.getcwd()}")
+                    # Changes the current directory to the one the user typed.
+                    os.chdir(argument)
+                    print(f"Directory changed to: {os.getcwd()}")
                 except FileNotFoundError:
-                    print(f"Erro: A pasta '{argumento}' não foi encontrada.")
+                    print(f"Error: The folder '{argument}' was not found.")
                 except NotADirectoryError:
-                    print(f"Erro: '{argumento}' é um arquivo, não uma pasta.")
+                    print(f"Error: '{argument}' is a file, not a folder.")
                 except Exception as e:
-                    print(f"Erro ao acessar a pasta: {e}")
+                    print(f"Error accessing folder: {e}")
             else:
-                print("Por favor, digite o nome da pasta. Exemplo: 'cd Documentos (ou 'cd ..' para voltar)'")
+                print("Please type the folder name. Example: 'cd Documents (or 'cd ..' to go back)'")
 
-# Comando search
-        elif comando == "search":
-            if argumento:
-                print(f"\nVasculhando pastas por '{argumento}' a partir de: {os.getcwd()}")
-                print("Isso pode levar alguns segundos dependendo da quantidade de arquivos...\n")
+# Comand search
+        elif comand == "search":
+            if argument:
+                print(f"\nSearching folders by '{argument}' starting from: {os.getcwd()}")
+                print("This may take a few seconds depending on the number of files...\n")
                 
-                encontrados = 0
+                found = 0
                 
-                # os.walk percorre a pasta atual ('.') e absolutamente todas as subpastas dentro dela
-                for raiz, pastas, arquivos in os.walk('.'):
+                # os.walk iterates through the current folder ('.') and absolutely all subfolders within it.
+                for source, folders, archives in os.walk('.'):
                     
-                    # 1. Procura se alguma pasta tem o nome que digitamos
-                    for nome_pasta in pastas:
-                        # Convertendo para minúsculo para a busca não diferenciar maiúsculas/minúsculas
-                        if argumento.lower() in nome_pasta.lower():
-                            caminho_completo = os.path.join(raiz, nome_pasta)
-                            print(f" [PASTA]   {caminho_completo}")
-                            encontrados += 1
+                    # 1. Check if any folder has the name we typed.
+                    for folder_name in folders:
+                        # Converting to lowercase so that search is not case-sensitive.
+                        if argument.lower() in folder_name.lower():
+                            full_path = os.path.join(source, folder_name)
+                            print(f" [FOLDER]   {full_path}")
+                            found += 1
                             
-                    # 2. Procura se algum arquivo tem o nome que digitamos
-                    for nome_arquivo in arquivos:
-                        if argumento.lower() in nome_arquivo.lower():
-                            caminho_completo = os.path.join(raiz, nome_arquivo)
-                            print(f" [ARQUIVO] {caminho_completo}")
-                            encontrados += 1
+                    # 2. Check if any file has the name we typed.
+                    for archive_name in archives:
+                        if argument.lower() in archive_name.lower():
+                            full_path = os.path.join(source, archive_name)
+                            print(f" [ARCHIVE] {full_path}")
+                            found += 1
                 
-                if encontrados == 0:
-                    print(f"Nenhum item contendo '{argumento}' foi encontrado por aqui.")
+                if found == 0:
+                    print(f"No items containing '{argument}' were found here.")
                 else:
-                    print(f"\nBusca concluída: {encontrados} item(s) encontrado(s).")
+                    print(f"\nSearch completed: {found} item(s) found.")
             else:
-                print("Por favor, digite o nome ou parte do nome para buscar. Exemplo: procurar relatorio")
+                print("Please type the name or part of the name to search. Example: search for report")
 
-# Comando mkdir
-        elif comando == "mkdir":
-            if argumento:
+# Comand mkdir
+        elif comand == "mkdir":
+            if argument:
                 try:
-                    os.mkdir(argumento)
-                    print(f"Pasta '{argumento}' criada com sucesso!")
+                    os.mkdir(argument)
+                    print(f"Folder '{argument}' created successfully!")
                 except FileExistsError:
-                    print(f"Erro: A pasta '{argumento}' já existe.")
+                    print(f"Error: The folder '{argument}' already exists.")
                 except Exception as e:
-                    print(f"Erro ao criar a pasta: {e}")
+                    print(f"Error creating folder: {e}")
             else:
-                print("Por favor, digite o nome da pasta. Exemplo: 'mkdir arquivos_importantes'")
+                print("Please type the folder name. Example: 'mkdir important_files'")
                 
-# Comando rmdir
-        elif comando == "rmdir":
-            if argumento:
-                # Esta função ajuda a burlar o erro de "Acesso Negado" em arquivos protegidos
-                def forcar_exclusao(funcao, caminho, informacoes_erro):
-                    os.chmod(caminho, stat.S_IWRITE)
-                    funcao(caminho)
+# Comand rmdir
+        elif comand == "rmdir":
+            if argument:
+                # This function helps to bypass the "Access Denied" error in protected files.
+                def force_exclusion(function, path, error_information):
+                    os.chmod(path, stat.S_IWRITE)
+                    function(path)
 
                 try:
-                    # O parâmetro 'onerror' chama nossa função caso o Windows tente bloquear a exclusão
-                    shutil.rmtree(argumento, onerror=forcar_exclusao)
-                    print(f"Pasta '{argumento}' e todo o seu conteúdo foram deletados com sucesso!")
+                    # The 'onerror' parameter calls our function if Windows attempts to block the deletion.
+                    shutil.rmtree(argument, onerror=force_exclusion)
+                    print(f"Folder '{argument}' and all its contents have been successfully deleted!")
                 except FileNotFoundError:
-                    print(f"Erro: A pasta '{argumento}' não foi encontrada.")
+                    print(f"Error: The folder '{argument}' was not found.")
                 except NotADirectoryError:
-                    print(f"Erro: '{argumento}' é um arquivo, não uma pasta. Use um comando para deletar arquivos.")
+                    print(f"Error: '{argument}' is a file, not a folder. Use a command to delete files.")
                 except PermissionError:
-                    print(f"Erro Crítico: Acesso negado. Certifique-se de que você não está DENTRO da pasta (use 'cd ..' para sair) e que nenhum programa está usando os arquivos.")
+                    print(f"Critical Error: Access denied. Make sure you are not INSIDE the folder (use 'cd ..' to exit) and that no program is using the files.")
                 except Exception as e:
-                    print(f"Erro ao deletar a pasta: {e}")
+                    print(f"Error deleting folder: {e}")
             else:
-                print("Por favor, digite o nome da pasta. Exemplo: 'rmdir pasta_antiga'")
+                print("Please type the folder name. Example: 'rmdir old_folder'")
 
-# Comando tree
-        elif comando == "tree":
+# Comand tree
+        elif comand == "tree":
             
-            # Se não digitar nada, mapeia a pasta atual ("."). Se digitar, mapeia a pasta escolhida.
-            alvo = argumento.strip() if argumento else "."
+            # If you don't type anything, it maps the current folder (""). If you type something, it maps the chosen folder.
+            target = argument.strip() if argument else "."
             
-            if not os.path.exists(alvo):
-                print(f"❌ A pasta '{alvo}' não existe.")
+            if not os.path.exists(target):
+                print(f"❌ The folder '{target}' does not exist.")
                 continue
                 
-            print(f"\n\033[1;36m========== 🌳 MAPA DE DIRETÓRIOS ==========\033[0m")
-            print(f"Mapeando a estrutura de: \033[1;33m{os.path.abspath(alvo)}\033[0m\n")
+            print(f"\n\033[1;36m========== 🌳 DIRECTORY MAP ==========\033[0m")
+            print(f"Mapping the structure of: \033[1;33m{os.path.abspath(target)}\033[0m\n")
             
-            # A função mágica que desenha as linhas
-            def gerar_arvore(caminho, prefixo="", nivel_atual=0, nivel_max=3):
-                # Trava de segurança para não travar o PC lendo o HD inteiro
-                if nivel_atual > nivel_max:
-                    print(prefixo + "└── \033[1;30m[... limite de profundidade atingido ...]\033[0m")
+            # The magic function that draws the lines.
+            def generate_tree(path, prefix="", current_level=0, max_level=3):
+                # Security lock to prevent the PC from crashing when reading the entire hard drive.
+                if current_level > max_level:
+                    print(prefix + "└── \033[1;30m[... depth limit reached ...]\033[0m")
                     return
                     
                 try:
-                    # Pega tudo o que tem na pasta e organiza (pastas e arquivos)
-                    itens = os.listdir(caminho)
-                    itens.sort()
+                    # Take everything in the folder and organize it (folders and files).
+                    items = os.listdir(path)
+                    items.sort()
                 except PermissionError:
-                    # Se o Windows/Linux bloquear o acesso a pastas de sistema
-                    print(prefixo + "└── \033[1;31m⛔ [Acesso Negado]\033[0m")
+                    # If Windows/Linux blocks access to system folders
+                    print(prefix + "└── \033[1;31m⛔ [Access denied]\033[0m")
                     return
                     
-                total = len(itens)
-                for i, item in enumerate(itens):
-                    ultimo = (i == total - 1)
-                    caminho_completo = os.path.join(caminho, item)
+                total = len(items)
+                for i, item in enumerate(items):
+                    last = (i == total - 1)
+                    full_path = os.path.join(path, item)
                     
-                    # Desenha as quinas e retas
-                    ponteiro = "└── " if ultimo else "├── "
+                    # Draw the corners and straight lines.
+                    pointer = "└── " if last else "├── "
                     
-                    if os.path.isdir(caminho_completo):
-                        # Se for pasta, pinta de Azul e coloca o ícone
-                        print(prefixo + ponteiro + "\033[1;34m📁 " + item + "\033[0m")
-                        # Prepara o espaçamento para desenhar o que tem dentro DESSA pasta
-                        extensao = "    " if ultimo else "│   "
-                        gerar_arvore(caminho_completo, prefixo + extensao, nivel_atual + 1, nivel_max)
+                    if os.path.isdir(full_path):
+                        # If it's a folder, paint it blue and add the icon.
+                        print(prefix + pointer + "\033[1;34m📁 " + item + "\033[0m")
+                        # Prepare the spacing to draw what's inside THIS folder.
+                        extention = "    " if last else "│   "
+                        generate_tree(full_path, prefix + extention, current_level + 1, max_level)
                     else:
-                        # Se for arquivo normal, pinta de Cinza Claro e coloca ícone
-                        print(prefixo + ponteiro + "\033[0;37m📄 " + item + "\033[0m")
+                        # If it's a regular file, paint it Light Gray and add an icon.
+                        print(prefix + pointer + "\033[0;37m📄 " + item + "\033[0m")
 
-            # Inicia o mapeamento a partir da pasta raiz que você escolheu
-            print("\033[1;34m📁 " + os.path.basename(os.path.abspath(alvo)) + "\033[0m")
-            gerar_arvore(alvo)
+            # Start mapping from the root folder you chose.
+            print("\033[1;34m📁 " + os.path.basename(os.path.abspath(target)) + "\033[0m")
+            generate_tree(target)
             
             print(f"\n\033[1;36m===========================================\033[0m\n")
 
-# Comando open
-        elif comando == "open":
-            if argumento:
-                if os.path.exists(argumento):
+# Comand open
+        elif comand == "open":
+            if argument:
+                if os.path.exists(argument):
                     try:
-                        # Verifica qual é o sistema operacional real do usuário para usar o comando certo
+                        # Check the user's actual operating system to use the correct command.
                         if sys.platform == "win32":
-                            os.startfile(argumento)  # Comando específico para Windows
+                            os.startfile(argument)  # Specific command for Windows
                         elif sys.platform == "darwin":
-                            subprocess.call(["open", argumento])  # Comando específico para Mac
+                            subprocess.call(["open", argument])  # Specific command for Mac
                         else:
-                            subprocess.call(["xdg-open", argumento])  # Comando específico para Linux
+                            subprocess.call(["xdg-open", argument])  # Specific command for Linux
                             
-                        print(f"Abrindo '{argumento}'...")
+                        print(f"Opening '{argument}'...")
                     except Exception as e:
-                        print(f"Erro ao tentar abrir o arquivo: {e}")
+                        print(f"Error opening file: {e}")
                 else:
-                    print(f"Erro: O arquivo '{argumento}' não foi encontrado na pasta atual.")
+                    print(f"Error: The file '{argument}' was not found in the current folder.")
             else:
-                print("Por favor, digite o nome do arquivo. Exemplo: 'open documento.pdf'")
+                print("Please enter the file name. Example: 'open document.pdf'")
 
-# Comando delete
-        elif comando == "delete":
-            if argumento:
-                # 1. Verifica se o que o usuário digitou realmente é um arquivo
-                if os.path.isfile(argumento):
+# Comand delete
+        elif comand == "delete":
+            if argument:
+                # 1. Checks if what the user typed is actually a file.
+                if os.path.isfile(argument):
                     try:
-                        # os.remove é a função do Python para deletar arquivos
-                        os.remove(argumento)
-                        print(f"Arquivo '{argumento}' deletado com sucesso!")
+                        # `os.remove` is the Python function for deleting files.
+                        os.remove(argument)
+                        print(f"File '{argument}' successfully deleted!")
                     except PermissionError:
-                        print(f"Erro: Acesso negado. O arquivo '{argumento}' pode estar aberto em outro programa ou ser protegido.")
+                        print(f"Error: Access denied. The file '{argument}' may be open in another program or be protected.")
                     except Exception as e:
-                        print(f"Erro ao deletar o arquivo: {e}")
+                        print(f"Error deleting file: {e}")
                         
-                # 2. Se for uma pasta, avisa o usuário para usar o comando certo
-                elif os.path.isdir(argumento):
-                    print(f"Erro: '{argumento}' é uma pasta. Para deletar pastas, use o comando 'rmdir'.")
+                # 2. If it's a folder, it warns the user to use the correct command.
+                elif os.path.isdir(argument):
+                    print(f"Error: '{argument}' is a folder. To delete folders, use the 'rmdir' command.")
                     
-                # 3. Se não for nenhum dos dois, o arquivo não existe ali
+                # 3. If it's neither of those, the file doesn't exist there.
                 else:
-                    print(f"Erro: O arquivo '{argumento}' não foi encontrado na pasta atual.")
+                    print(f"Error: The file '{argument}' was not found in the current folder.")
             else:
-                print("Por favor, digite o nome do arquivo que deseja deletar. Exemplo: delete notas.txt")
+                print("Please type the name of the file you want to delete. Example: delete notes.txt")
 
-# Comando empty
-        elif comando == "empty":
-            if argumento:
+# Comand empty
+        elif comand == "empty":
+            if argument:
                 try:
-                    # Verifica se a pasta realmente existe e é um diretório
-                    if os.path.isdir(argumento):
-                        arquivos = os.listdir(argumento)
-                        contador = 0
+                    # Check if the folder actually exists and is a directory.
+                    if os.path.isdir(argument):
+                        archives = os.listdir(argument)
+                        counter = 0
                         
-                        for item in arquivos:
-                            # Monta o caminho completo do arquivo
-                            caminho_item = os.path.join(argumento, item)
+                        for item in archives:
+                            # Specify the full file path.
+                            item_path = os.path.join(argument, item)
                             
-                            # Verifica se é um arquivo (para não tentar deletar uma subpasta sem querer)
-                            if os.path.isfile(caminho_item):
-                                os.remove(caminho_item)
-                                contador += 1
+                            # Check if it's a file (so you don't accidentally delete a subfolder).
+                            if os.path.isfile(item_path):
+                                os.remove(item_path)
+                                counter += 1
                                 
-                        print(f"Sucesso: {contador} arquivo(s) deletado(s) da pasta '{argumento}'.")
+                        print(f"Success: {counter} file(s) deleted from folder '{argument}'.")
                     else:
-                        print(f"Erro: '{argumento}' não foi encontrada ou não é uma pasta.")
+                        print(f"Error: '{argument}' was not found or is not a folder.")
                 except Exception as e:
-                    print(f"Erro ao tentar esvaziar a pasta: {e}")
+                    print(f"Error while trying to empty the folder: {e}")
             else:
-                print("Por favor, digite o nome da pasta. Exemplo: 'empty arquivos_velhos'")
+                print("Please enter the folder name. Example: 'empty old_files'")
                 
-# Comando lock  
-        elif comando == "lock":
-            if argumento:
-                if os.path.exists(argumento):
-                    senha = input(f"Crie uma senha para trancar '{argumento}': ")
+# Comand lock  
+        elif comand == "lock":
+            if argument:
+                if os.path.exists(argument):
+                    password = input(f"Create a password to lock '{argument}': ")
                     
                     try:
-                        # 1. Transforma a sua senha comum numa chave criptográfica forte de 32 bytes
-                        chave = base64.urlsafe_b64encode(hashlib.sha256(senha.encode('utf-8')).digest())
-                        fernet = Fernet(chave)
+                        # 1. Transform your standard password into a strong 32-byte cryptographic key.
+                        key = base64.urlsafe_b64encode(hashlib.sha256(password.encode('utf-8')).digest())
+                        fernet = Fernet(key)
                         
-                        # 2. Lê os dados originais do arquivo
-                        with open(argumento, 'rb') as f:
-                            dados_originais = f.read()
+                        # 2. Reads the original data from the file.
+                        with open(argument, 'rb') as f:
+                            original_data = f.read()
                             
-                        # 3. Embaralha tudo usando a chave
-                        dados_criptografados = fernet.encrypt(dados_originais)
+                        # 3. Shuffle everything using the key.
+                        encrypted_data = fernet.encrypt(original_data)
                         
-                        # 4. Salva o arquivo com um novo nome ".lock" e apaga o original
-                        novo_nome = argumento + ".lock"
-                        with open(novo_nome, 'wb') as f:
-                            f.write(dados_criptografados)
+                        # 4. Save the file with a new name ".lock" and delete the original.
+                        new_name = argument + ".lock"
+                        with open(new_name, 'wb') as f:
+                            f.write(encrypted_data)
                             
-                        os.remove(argumento) # Apaga o arquivo desprotegido
-                        print(f"🔒 Sucesso! Arquivo protegido salvo como '{novo_nome}'.")
-                        print("ATENÇÃO: Se esquecer a senha, o arquivo será perdido para sempre!")
+                        os.remove(argument) # Delete the unprotected file.
+                        print(f"🔒 Success! Protected file saved as '{new_name}'.")
+                        print("WARNING: If you forget your password, the file will be lost forever!")
                         
                     except Exception as e:
-                        print(f"Erro ao criptografar: {e}")
+                        print(f"Error encrypting: {e}")
                 else:
-                    print(f"Erro: Arquivo '{argumento}' não encontrado.")
+                    print(f"Error: File '{argument}' not found.")
             else:
-                print("Por favor, digite o nome do arquivo. Exemplo: travar diario.txt")
+                print("Please enter the file name. Example: lock diary.txt")
 
-# Comando unlock
-        elif comando == "unlock":
-            if argumento:
-                if os.path.exists(argumento):
-                    if not argumento.endswith('.lock'):
-                        print("Aviso: O arquivo não tem a extensão '.lock'. Tem certeza de que está criptografado?")
+# Comand unlock
+        elif comand == "unlock":
+            if argument:
+                if os.path.exists(argument):
+                    if not argument.endswith('.lock'):
+                        print("Warning: The file does not have the '.lock' extension. Are you sure it's encrypted?")
                         
-                    senha = input(f"Digite a senha para destravar '{argumento}': ")
+                    password = input(f"Enter the password to unlock '{argument}': ")
                     
                     try:
-                        # 1. Recria a chave usando a senha que você digitou
-                        chave = base64.urlsafe_b64encode(hashlib.sha256(senha.encode('utf-8')).digest())
-                        fernet = Fernet(chave)
+                        # 1. Recreate the key using the password you entered.
+                        key = base64.urlsafe_b64encode(hashlib.sha256(password.encode('utf-8')).digest())
+                        fernet = Fernet(key)
                         
-                        # 2. Lê os dados trancados
-                        with open(argumento, 'rb') as f:
-                            dados_criptografados = f.read()
+                        # 2. Read the locked data
+                        with open(argument, 'rb') as f:
+                            encrypted_data = f.read()
                             
-                        # 3. Tenta desembaralhar (se a senha estiver errada, a matemática falha e cai no except)
-                        dados_originais = fernet.decrypt(dados_criptografados)
+                        # 3. Try to unscramble it (if the password is wrong, the math fails and it falls into the except block).
+                        original_data = fernet.decrypt(encrypted_data)
                         
-                        # 4. Remove a extensão ".lock" do nome para voltar ao normal
-                        nome_original = argumento.replace('.lock', '')
-                        # Se por acaso o arquivo não tivesse .lock no nome, adiciona um sufixo para não sobrescrever errado
-                        if nome_original == argumento: 
-                            nome_original = "destravado_" + argumento
+                        # 4. Remove the ".lock" extension from the name to revert to normal.
+                        original_name = argument.replace('.lock', '')
+                        # If the file doesn't have ".lock" in its name, add a suffix to avoid overwriting it incorrectly.
+                        if original_name == argument: 
+                            original_name = "unlocked_" + argument
                             
-                        # 5. Salva o arquivo legível e apaga a versão trancada
-                        with open(nome_original, 'wb') as f:
-                            f.write(dados_originais)
+                        # 5. Save the readable file and delete the locked version.
+                        with open(original_name, 'wb') as f:
+                            f.write(original_data)
                             
-                        os.remove(argumento)
-                        print(f"🔓 Sucesso! Arquivo destravado e salvo como '{nome_original}'.")
+                        os.remove(argument)
+                        print(f"🔓 Success! File unlocked and saved as '{original_name}'.")
                         
                     except Exception:
-                        # O erro padrão da biblioteca para senha errada é o InvalidToken, mas tratamos de forma geral
-                        print("❌ Erro: Senha incorreta ou arquivo corrompido! Acesso negado.")
+                        # The library's default error for an incorrect password is InvalidToken, but we generally handle it this way.
+                        print("❌ Error: Incorrect password or corrupted file! Access denied.")
                 else:
-                    print(f"Erro: Arquivo '{argumento}' não encontrado.")
+                    print(f"Error: File '{argument}' not found.")
             else:
-                print("Por favor, digite o nome do arquivo. Exemplo: destravar diario.txt.lock")
+                print("Please enter the file name. Example: unlock diary.txt.lock")
 
-# Comando hide
-        elif comando == "hide":
-            # O comando espera algo como: esconder imagem.png Minha mensagem secreta
-            partes = argumento.split(" ", 1)
+# Comand hide
+        elif comand == "hide":
+            # The command expects something like: hide image.png My secret message
+            parts = argument.split(" ", 1)
             
-            if len(partes) < 2:
-                print("❌ Uso correto: esconder [nome_da_imagem.png] [sua mensagem secreta]")
-                print("DICA: Use imagens .PNG! Imagens .JPG destroem os dados ocultos por causa da compressão.")
+            if len(parts) < 2:
+                print("❌ Correct usage: hide [image_name.png] [your secret message]")
+                print("TIP: Use .PNG images! .JPG images destroy hidden data due to compression.")
             else:
-                img_path = partes[0]
-                # Adicionamos um "marcador final" para o PyOS saber onde a mensagem acaba
-                mensagem = partes[1] + "@@FIM@@" 
+                img_path = parts[0]
+                # We added a "terminal marker" so PyOS knows where the message ends.
+                message = parts[1] + "@@FIM@@" 
                 
                 try:
                     from PIL import Image
-                    print(f"\n\033[1;35m========== 🕵️ ESTEGANOGRAFIA ==========\033[0m")
-                    print(f"A injetar dados em '{img_path}'...")
+                    print(f"\n\033[1;35m========== 🕵️ STEGANOGRAPHY ==========\033[0m")
+                    print(f"Injecting data into '{img_path}'...")
                     
                     img = Image.open(img_path)
-                    img = img.convert('RGB') # Garante que temos os canais Red, Green, Blue
+                    img = img.convert('RGB') # It guarantees that we have the Red, Green, and Blue channels.
                     pixels = img.load()
-                    largura, altura = img.size
+                    width, height = img.size
                     
-                    # Converte a mensagem de texto para zeros e uns (Binário)
-                    binario = ''.join([format(ord(i), "08b") for i in mensagem])
-                    tamanho_bin = len(binario)
+                    # Converts the text message to zeros and ones (binary).
+                    binary = ''.join([format(ord(i), "08b") for i in message])
+                    bin_size = len(binary)
                     
-                    # Verifica se a imagem tem pixels suficientes para o tamanho do texto
-                    if tamanho_bin > largura * altura:
-                        print("❌ Erro: A imagem é muito pequena para esconder essa quantidade de texto!")
+                    # Check if the image has enough pixels for the text size.
+                    if bin_size > width * height:
+                        print("❌ Error: The image is too small to hide this amount of text!")
                     else:
                         idx = 0
-                        # Varre a imagem pixel por pixel
-                        for y in range(altura):
-                            for x in range(largura):
-                                if idx < tamanho_bin:
+                        # Scans the image pixel by pixel.
+                        for y in range(height):
+                            for x in range(width):
+                                if idx < bin_size:
                                     r, g, b = pixels[x, y]
                                     
-                                    # MÁGICA LSB: Limpa o último bit da cor Vermelha e injeta o nosso bit da mensagem
-                                    r = (r & 254) | int(binario[idx])
+                                    # LSB MAGIC: Clears the last bit of red color and injects our message bit.
+                                    r = (r & 254) | int(binary[idx])
                                     
                                     pixels[x, y] = (r, g, b)
                                     idx += 1
                                 else:
                                     break
-                            if idx >= tamanho_bin:
+                            if idx >= bin_size:
                                 break
                         
-                        novo_nome = "secreto_" + img_path
-                        img.save(novo_nome) # Salva a nova imagem sem perdas
-                        print(f"✅ \033[1;32mSucesso!\033[0m Mensagem injetada de forma indetetável.")
-                        print(f"A sua nova imagem camuflada chama-se: \033[1;33m{novo_nome}\033[0m")
+                        new_name = "secret_" + img_path
+                        img.save(new_name) # Save the new image without loss.
+                        print(f"✅ \033[1;32mSuccess!\033[0m Message injected in an undetectable way.")
+                        print(f"Their new camouflage image is called: \033[1;33m{new_name}\033[0m")
                         
                 except FileNotFoundError:
-                    print(f"❌ Imagem '{img_path}' não encontrada na pasta atual.")
+                    print(f"❌ Image '{img_path}' not found in the current folder.")
                 except Exception as e:
-                    print(f"Erro crítico no motor de injeção: {e}")
+                    print(f"Critical error in the injection engine: {e}")
                 print(f"\033[1;35m=======================================\033[0m\n")
 
-# Comando reveal
-        elif comando == "reveal":
-            if not argumento:
-                print("❌ Uso correto: reveal [nome_da_imagem_secreta.png]")
+# Comand reveal
+        elif comand == "reveal":
+            if not argument:
+                print("❌ Correct usage: reveal [secret_image_name.png]")
             else:
-                img_path = argumento
+                img_path = argument
                 try:
                     from PIL import Image
-                    print(f"\n\033[1;35m========== 👁️ DECODIFICADOR ==========\033[0m")
-                    print(f"A analisar pixels de '{img_path}' à procura de anomalias LSB...\n")
+                    print(f"\n\033[1;35m========== 👁️ DECODER ==========\033[0m")
+                    print(f"Analyzing pixels from '{img_path}' looking for LSB anomalies...\n")
                     
                     img = Image.open(img_path)
                     img = img.convert('RGB')
                     pixels = img.load()
-                    largura, altura = img.size
+                    width, height = img.size
                     
-                    # Extrai o último bit do canal vermelho de todos os pixels
-                    binario = ""
-                    for y in range(altura):
-                        for x in range(largura):
+                    # Extracts the last bit from the red channel of all pixels.
+                    binary = ""
+                    for y in range(height):
+                        for x in range(width):
                             r, g, b = pixels[x, y]
-                            binario += str(r & 1)
+                            binary += str(r & 1)
                             
-                    # Agrupa os bits de 8 em 8 para transformar de volta em letras
-                    mensagem_extraida = ""
-                    for i in range(0, len(binario), 8):
-                        byte = binario[i:i+8]
+                    # It groups the bits in sets of 8 to transform them back into letters.
+                    extracted_message = ""
+                    for i in range(0, len(binary), 8):
+                        byte = binary[i:i+8]
                         if len(byte) == 8:
-                            mensagem_extraida += chr(int(byte, 2))
-                            # Assim que encontrar o nosso marcador final, para a busca
-                            if mensagem_extraida.endswith("@@FIM@@"):
-                                mensagem_extraida = mensagem_extraida[:-7] # Remove o marcador
+                            extracted_message += chr(int(byte, 2))
+                            # Once you find our final marker, stop the search.
+                            if extracted_message.endswith("@@FIM@@"):
+                                extracted_message = extracted_message[:-7] # Remove the marker
                                 break
                                 
-                    print(f"🔓 \033[1;36mMensagem Revelada:\033[0m \033[1;37m{mensagem_extraida}\033[0m")
+                    print(f"🔓 \033[1;36mMessage Revealed:\033[0m \033[1;37m{extracted_message}\033[0m")
                     
                 except FileNotFoundError:
-                    print(f"❌ Imagem '{img_path}' não encontrada.")
+                    print(f"❌ Image '{img_path}' not found.")
                 except Exception as e:
-                    print(f"Erro ao extrair dados: {e}. Tem a certeza que esta imagem tem uma mensagem oculta?")
+                    print(f"Error extracting data: {e}. Are you sure this image has a hidden message?")
                 print(f"\033[1;35m=======================================\033[0m\n")
 
-# Comando base64
-        elif comando == "base64":
+# Comand base64
+        elif comand == "base64":
             import base64
             
-            # Se o usuário não digitar nada ou digitar errado
-            if not argumento or " " not in argumento:
-                print("\n\033[1;34m========== 🔠 CODIFICADOR BASE64 ==========\033[0m")
-                print("Uso correto:")
-                print("  \033[1;33mbase64 encode [texto]\033[0m : Transforma um texto em Base64")
-                print("  \033[1;33mbase64 decode [texto]\033[0m : Reverte um Base64 para texto normal")
+            # If the user doesn't type anything or types incorrectly
+            if not argument or " " not in argument:
+                print("\n\033[1;34m========== 🔠 BASE64 ENCODER ==========\033[0m")
+                print("Correct usage:")
+                print("  \033[1;33mbase64 encode [texto]\033[0m : Converts text to Base64")
+                print("  \033[1;33mbase64 decode [texto]\033[0m : Reverts Base64 to plain text.")
                 print("\033[1;34m===========================================\033[0m\n")
                 continue
                 
-            # Divide o comando da mensagem ("encode" ou "decode" e o "texto")
-            partes = argumento.split(" ", 1)
-            acao = partes[0].lower()
-            texto = partes[1]
+            # Divide the message command ("encode" or "decode" and the "text")
+            parts = argument.split(" ", 1)
+            action = parts[0].lower()
+            text = parts[1]
             
-            if acao in ["encode", "codificar"]:
+            if action in ["encode", "code"]:
                 try:
-                    # O Python exige que o texto vire "bytes" antes de ser convertido
-                    bytes_texto = texto.encode('utf-8')
+                    # Python requires that text be converted into "bytes" before it can be converted.
+                    bytes_texto = text.encode('utf-8')
                     base64_bytes = base64.b64encode(bytes_texto)
-                    resultado = base64_bytes.decode('utf-8')
+                    result = base64_bytes.decode('utf-8')
                     
-                    print(f"\n🔐 \033[1;32mTexto Codificado (Base64):\033[0m")
-                    print(f"\033[1;37m{resultado}\033[0m\n")
+                    print(f"\n🔐 \033[1;32mEncoded Text (Base64):\033[0m")
+                    print(f"\033[1;37m{result}\033[0m\n")
                 except Exception as e:
-                    print(f"❌ Erro na codificação: {e}")
+                    print(f"❌ Coding error: {e}")
                     
-            elif acao in ["decode", "decodificar"]:
+            elif action in ["decode", "decode"]:
                 try:
-                    # Processo inverso: pega os bytes do Base64 e transforma em texto legível
-                    base64_bytes = texto.encode('utf-8')
+                    # Reverse process: takes the bytes from Base64 and transforms them into readable text.
+                    base64_bytes = text.encode('utf-8')
                     bytes_texto = base64.b64decode(base64_bytes)
-                    resultado = bytes_texto.decode('utf-8')
+                    result = bytes_texto.decode('utf-8')
                     
-                    print(f"\n🔓 \033[1;36mTexto Decodificado:\033[0m")
-                    print(f"\033[1;37m{resultado}\033[0m\n")
+                    print(f"\n🔓 \033[1;36mDecoded Text:\033[0m")
+                    print(f"\033[1;37m{result}\033[0m\n")
                 except base64.binascii.Error:
-                    print("❌ \033[1;31mErro:\033[0m O texto inserido não é um formato Base64 válido (falta de preenchimento ou caracteres incorretos).")
+                    print("❌ \033[1;31mErro:\033[0m The text entered is not a valid Base64 format (missing information or incorrect characters).")
                 except Exception as e:
-                    print(f"❌ Erro na decodificação: {e}")
+                    print(f"❌ Error in decoding: {e}")
                     
             else:
-                print("❌ Ação desconhecida. Use 'encode' ou 'decode'.")
+                print("❌ Unknown action. Use 'encode' or 'decode'.")
 
-# Comando password
-        elif comando == "password":
-            # Arquivos do nosso sistema de segurança
-            arquivo_chave = os.path.join(FOLDER_DATAS, ".key_master.key")
-            arquivo_cofre = os.path.join(FOLDER_DATAS, "safe_pyos.json")
+# Comand password
+        elif comand == "password":
+            # Files from our security system
+            key_achive = os.path.join(FOLDER_DATAS, ".key_master.key")
+            safe_archive = os.path.join(FOLDER_DATAS, "safe_pyos.json")
             
-            # 1. Sistema de Chave Mestra (Gera uma chave AES se você ainda não tiver uma)
-            if not os.path.exists(arquivo_chave):
-                chave_nova = Fernet.generate_key()
-                with open(arquivo_chave, "wb") as f_chave:
-                    f_chave.write(chave_nova)
+            # 1. Master Key System (Generates an AES key if you don't already have one)
+            if not os.path.exists(key_achive):
+                new_key = Fernet.generate_key()
+                with open(key_achive, "wb") as f_key:
+                    f_key.write(new_key)
             
-            # Carrega a chave mestra para a memória do PyOS
-            with open(arquivo_chave, "rb") as f_chave:
-                chave = f_chave.read()
+            # Loads the master key into PyOS memory.
+            with open(key_achive, "rb") as f_key:
+                key = f_key.read()
             
-            motor_criptografia = Fernet(chave)
+            encryption_engine = Fernet(key)
             
-            # Se o usuário digitou apenas "senha", mostra o manual
-            if not argumento:
-                print("\n\033[1;31m========== 🔒 COFRE CRIPTOGRAFADO ==========\033[0m")
-                print("Comandos de Segurança:")
-                print("  \033[1;33mpassword generate\033[0m                : Cria uma senha inquebrável de 16 caracteres")
-                print("  \033[1;33mpassword save [serviço] [senha]\033[0m  : Criptografa e guarda uma senha")
-                print("  \033[1;33mpassword read\033[0m                    : Destranca o cofre e mostra as suas senhas")
-                print("  \033[1;33mpassword delete [serviço]\033[0m        : Remove uma senha do cofre para sempre")
+            # If the user entered only "password", the manual shows
+            if not argument:
+                print("\n\033[1;31m========== 🔒 ENCRYPTED SAFE ==========\033[0m")
+                print("Security Commands:")
+                print("  \033[1;33mpassword generate\033[0m                : Create an unbreakable 16-character password.")
+                print("  \033[1;33mpassword save [service] [password]\033[0m  : Encrypt and store a password.")
+                print("  \033[1;33mpassword read\033[0m                    : Unlock the safe and show your passwords.")
+                print("  \033[1;33mpassword delete [service]\033[0m        : Remove a safe password forever.")
                 print("\033[1;31m============================================\033[0m\n")
                 continue
                 
-            # Divide o argumento. O "2" garante que a senha não seja cortada se tiver espaços!
-            partes = argumento.split(" ", 2)
-            acao = partes[0].lower()
+            # Divide the argument. The "2" ensures that the password won't be truncated if it contains spaces!
+            parts = argument.split(" ", 2)
+            action = parts[0].lower()
             
-            if acao == "generate":
-                # Mistura letras maiúsculas, minúsculas, números e símbolos difíceis
-                caracteres = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*_-=+"
-                senha_forte = "".join(random.choice(caracteres) for _ in range(16))
+            if action == "generate":
+                # It mixes uppercase letters, lowercase letters, numbers, and difficult symbols.
+                characters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%&*_-=+"
+                strong_password = "".join(random.choice(characters) for _ in range(16))
                 
-                print(f"\n🛡️ \033[1;32mNova Senha Gerada:\033[0m \033[1;37m{senha_forte}\033[0m")
-                print("DICA: Use 'password save [serviço] [senha]' para salvá-la no cofre!\n")
+                print(f"\n🛡️ \033[1;32mNew Password Generated:\033[0m \033[1;37m{strong_password}\033[0m")
+                print("TIP: Use 'password save [service] [password]' to save it in the vault!\n")
                 
-            elif acao == "save":
-                if len(partes) < 3:
-                    print("❌ Erro de sintaxe. Use: password save [nome_do_site] [sua_senha]")
+            elif action == "save":
+                if len(parts) < 3:
+                    print("❌ Syntax error. Use: password save [website_name] [your_password]")
                 else:
-                    servico = partes[1].capitalize()
-                    senha_plana = partes[2]
+                    service = parts[1].capitalize()
+                    flat_password = parts[2]
                     
-                    # A MÁGICA: Transforma a senha numa hash ilegível
-                    senha_criptografada = motor_criptografia.encrypt(senha_plana.encode()).decode()
+                    # THE MAGIC: Transforms the password into an unreadable hash.
+                    encrypted_password = encryption_engine.encrypt(flat_password.encode()).decode()
                     
-                    # Carrega o cofre atual (se existir)
-                    cofre = {}
-                    if os.path.exists(arquivo_cofre):
+                    # Loads the current vault (if it exists).
+                    safe = {}
+                    if os.path.exists(safe_archive):
                         try:
-                            with open(arquivo_cofre, "r", encoding="utf-8") as f:
-                                cofre = json.load(f)
+                            with open(safe_archive, "r", encoding="utf-8") as f:
+                                safe = json.load(f)
                         except Exception:
                             pass
                             
-                    # Guarda a versão criptografada e salva no disco
-                    cofre[servico] = senha_criptografada
+                    # Save the encrypted version and save it to disk.
+                    safe[service] = encrypted_password
                     
-                    with open(arquivo_cofre, "w", encoding="utf-8") as f:
-                        json.dump(cofre, f, indent=4)
+                    with open(safe_archive, "w", encoding="utf-8") as f:
+                        json.dump(safe, f, indent=4)
                         
-                    print(f"🔒 \033[1;32mSucesso!\033[0m A senha do serviço '\033[1;33m{servico}\033[0m' foi criptografada e trancada no cofre.")
+                    print(f"🔒 \033[1;32mSuccess!\033[0m The password for the service '\033[1;33m{service}\033[0m' was encrypted and locked in the safe.")
 
-            elif acao in ["read", "list"]:
-                if not os.path.exists(arquivo_cofre):
-                    print("📭 O seu cofre está vazio. Use 'password save' primeiro.")
+            elif action in ["read", "list"]:
+                if not os.path.exists(safe_archive):
+                    print("📭 Your safe is empty. Use 'password save' first.")
                 else:
                     try:
-                        with open(arquivo_cofre, "r", encoding="utf-8") as f:
-                            cofre = json.load(f)
+                        with open(safe_archive, "r", encoding="utf-8") as f:
+                            safe = json.load(f)
                             
-                        print("\n\033[1;31m========== 🔓 COFRE ABERTO ==========\033[0m")
-                        if not cofre:
-                            print("O cofre não tem senhas salvas.")
+                        print("\n\033[1;31m========== 🔓 OPEN SAFE ==========\033[0m")
+                        if not safe:
+                            print("The safe has no saved passwords.")
                         else:
-                            for servico, senha_cifra in cofre.items():
-                                # A MÁGICA REVERSA: Destranca a senha usando a Chave Mestra
-                                senha_revelada = motor_criptografia.decrypt(senha_cifra.encode()).decode()
-                                print(f" 🔑 \033[1;33m{servico}:\033[0m {senha_revelada}")
+                            for service, cipher_password in safe.items():
+                                # REVERSE MAGIC: Unlock the password using the Master Key
+                                password_revealed = encryption_engine.decrypt(cipher_password.encode()).decode()
+                                print(f" 🔑 \033[1;33m{service}:\033[0m {password_revealed}")
                         print("\033[1;31m=====================================\033[0m\n")
                     except Exception as e:
-                        print(f"❌ Erro crítico ao destrancar o cofre. A chave mestra foi alterada? Erro: {e}")
+                        print(f"❌ Critical error unlocking the safe. Has the master key been changed? Error: {e}")
             
-            elif acao in ["delete", "deletar", "remover"]:
-                if len(partes) < 2:
-                    print("❌ Erro de sintaxe. Use: password delete [nome_do_serviço]")
+            elif action in ["delete", "dlt", "remove"]:
+                if len(parts) < 2:
+                    print("❌ Syntax error. Use: password delete [service_name]")
                 else:
-                    servico = partes[1].capitalize()
+                    service = parts[1].capitalize()
                     
-                    if os.path.exists(arquivo_cofre):
+                    if os.path.exists(safe_archive):
                         try:
-                            with open(arquivo_cofre, "r", encoding="utf-8") as f:
-                                cofre = json.load(f)
+                            with open(safe_archive, "r", encoding="utf-8") as f:
+                                safe = json.load(f)
                                 
-                            # Verifica se o serviço existe mesmo no cofre
-                            if servico in cofre:
-                                del cofre[servico] # Apaga do dicionário
+                            # Check if the service actually exists in the safe.
+                            if service in safe:
+                                del safe[service] # Delete from dictionary
                                 
-                                # Salva o cofre atualizado de volta no disco
-                                with open(arquivo_cofre, "w", encoding="utf-8") as f:
-                                    json.dump(cofre, f, indent=4)
+                                # Save the updated vault back to disk.
+                                with open(safe_archive, "w", encoding="utf-8") as f:
+                                    json.dump(safe, f, indent=4)
                                     
-                                print(f"🗑️ \033[1;31mDestruído:\033[0m A senha de '\033[1;33m{servico}\033[0m' foi apagada permanentemente do cofre.")
+                                print(f"🗑️ \033[1;31mDestroyed:\033[0m The password for '\033[1;33m{service}\033[0m' it was permanently erased from the safe.")
                             else:
-                                print(f"❌ O serviço '{servico}' não foi encontrado nas suas anotações.")
+                                print(f"❌ The service '{service}' was not found in your notes.")
                                 
                         except Exception as e:
-                            print(f"Erro ao acessar o cofre: {e}")
+                            print(f"Error accessing the safe: {e}")
                     else:
-                        print("📭 O seu cofre já está vazio ou ainda não foi criado.")
+                        print("📭 Your safe is either already empty or has not yet been created.")
             else:
-                print("❌ Comando de cofre não reconhecido. Digite apenas 'password' para ajuda.")
+                print("❌ Safe command not recognized. Just type 'password' for help.")
 
-# Comando txt_read
-        elif comando == "txt_read":
-            if argumento:
-                # Verifica se o que o usuário digitou é realmente um arquivo
-                if os.path.isfile(argumento):
+# Comand txt_read
+        elif comand == "txt_read":
+            if argument:
+                # Checks if what the user typed is actually a file
+                if os.path.isfile(argument):
                     try:
-                        # Abre o arquivo em modo de leitura ('r') com suporte a acentos (utf-8)
-                        with open(argumento, 'r', encoding='utf-8') as arquivo:
-                            conteudo = arquivo.read()
-                            print(f"\n--- Lendo: {argumento} ---\n")
-                            print(conteudo)
-                            print(f"\n--- Fim de {argumento} ---")
+                        # Opens the file in read-only mode ('r') with accent support (utf-8)
+                        with open(argument, 'r', encoding='utf-8') as archive:
+                            content = archive.read()
+                            print(f"\n--- Reading: {argument} ---\n")
+                            print(content)
+                            print(f"\n--- End of {argument} ---")
                     except UnicodeDecodeError:
-                        print("Erro: Este não parece ser um arquivo de texto comum (não é possível ler).")
+                        print("Error: This does not appear to be a regular text file (it cannot be read).")
                     except Exception as e:
-                        print(f"Erro ao ler o arquivo: {e}")
+                        print(f"Error reading file: {e}")
                 else:
-                    print(f"Erro: '{argumento}' não foi encontrado ou não é um arquivo válido.")
+                    print(f"Error: '{argument}' was not found or is not a valid file.")
             else:
-                print("Por favor, digite o nome do arquivo. Exemplo: 'txt_read notas.txt'")
+                print("Please enter the file name. Example: 'txt_read notes.txt'")
                 
-# Comando txt_write
-        elif comando == "txt_write":
-            if argumento:
-                print(f"\n--- Escrevendo em: {argumento} ---")
-                print("DICA: Digite ':q' para salvar/sair, ou ':u' para apagar a linha anterior.")
+# Comand txt_write
+        elif comand == "txt_write":
+            if argument:
+                print(f"\n--- Writing in: {argument} ---")
+                print("TIP: Type ':q' to save/exit, or ':u' to delete the previous line.")
                 print("-" * 65)
                 
-                linhas = []
+                lines = []
                 while True:
-                    # Mostra o número da linha atual para facilitar
-                    linha = input(f"{len(linhas) + 1} | ")
+                    # Displays the current line number for your convenience
+                    line = input(f"{len(lines) + 1} | ")
                     
-                    if linha.strip() == ':q':
+                    if line.strip() == ':q':
                         break
-                    elif linha.strip() == ':u':
-                        if len(linhas) > 0:
-                            removida = linhas.pop() # Remove a última linha da lista
-                            print(f"   [Linha '{removida}' apagada]")
+                    elif line.strip() == ':u':
+                        if len(lines) > 0:
+                            removed = lines.pop() # Remove the last line from the list
+                            print(f"   [Line '{removed}' erased]")
                         else:
-                            print("   [O arquivo já está vazio]")
+                            print("   [The file is already empty]")
                         continue
                         
-                    linhas.append(linha)
+                    lines.append(line)
                 
                 try:
-                    with open(argumento, 'w', encoding='utf-8') as arquivo:
-                        arquivo.write('\n'.join(linhas))
-                    print(f"Arquivo '{argumento}' salvo com sucesso!")
+                    with open(argument, 'w', encoding='utf-8') as archive:
+                        archive.write('\n'.join(lines))
+                    print(f"File '{argument}' saved successfully!")
                 except Exception as e:
-                    print(f"Erro ao salvar o arquivo: {e}")
+                    print(f"Error saving file: {e}")
             else:
-                print("Por favor, digite o nome do arquivo. Exemplo: 'txt_write notas.txt'")
+                print("Please enter the file name. Example: 'txt_write notas.txt'")
 
-# Comando txt_edit
-        elif comando == "txt_edit":
-            if argumento:
-                # Verifica se o arquivo existe antes de tentar editar
-                if os.path.isfile(argumento):
+# Comand txt_edit
+        elif comand == "txt_edit":
+            if argument:
+                # Check if the file exists before attempting to edit it
+                if os.path.isfile(argument):
                     try:
-                        # 1. Abre o arquivo e lê as linhas que já existem lá dentro
-                        with open(argumento, 'r', encoding='utf-8') as arquivo:
-                            linhas = arquivo.read().splitlines()
+                        # 1. Open the file and read the lines that are already there
+                        with open(argument, 'r', encoding='utf-8') as archive:
+                            lines = archive.read().splitlines()
                             
-                        print(f"\n--- Editando: {argumento} ---")
-                        print("Texto atual:")
+                        print(f"\n--- Editing: {argument} ---")
+                        print("Current text:")
                         
-                        # Mostra o texto com os números das linhas
-                        for i, l in enumerate(linhas):
+                        # Displays the text with line numbers
+                        for i, l in enumerate(lines):
                             print(f"{i + 1} | {l}")
                             
                         print("-" * 65)
-                        print("Continue digitando para adicionar. Use ':q' para salvar ou ':u' para apagar.")
+                        print("Continue typing to add. Use ':q' to save or ':u' to delete")
                         
-                        # 2. Entra no mesmo loop de digitação do "escrever"
+                        # 2. Enter the same typing loop as "write"
                         while True:
-                            linha = input(f"{len(linhas) + 1} | ")
+                            line = input(f"{len(lines) + 1} | ")
                             
-                            if linha.strip() == ':q':
+                            if line.strip() == ':q':
                                 break
-                            elif linha.strip() == ':u':
-                                if len(linhas) > 0:
-                                    removida = linhas.pop()
-                                    print(f"   [Linha '{removida}' apagada]")
+                            elif line.strip() == ':u':
+                                if len(lines) > 0:
+                                    removed = lines.pop()
+                                    print(f"   [Line '{removed}' erased]")
                                 else:
-                                    print("   [O arquivo já está vazio]")
+                                    print("   [The file is already empty]")
                                 continue
                                 
-                            linhas.append(linha)
+                            lines.append(line)
                             
-                        # 3. Salva o arquivo sobrescrevendo com a lista atualizada
-                        with open(argumento, 'w', encoding='utf-8') as arquivo:
-                            arquivo.write('\n'.join(linhas))
-                        print(f"Arquivo '{argumento}' atualizado com sucesso!")
+                        # 3. Save the file, overwriting it with the updated list
+                        with open(argument, 'w', encoding='utf-8') as archive:
+                            archive.write('\n'.join(lines))
+                        print(f"File '{argument}' updated successfully!")
                         
                     except Exception as e:
-                        print(f"Erro ao editar o arquivo: {e}")
+                        print(f"Error editing file: {e}")
                 else:
-                    print(f"Erro: '{argumento}' não foi encontrado. Se quiser criar um novo, use o comando 'txt_write'.")
+                    print(f"Error: '{argument}' was not found. If you want to create a new one, use the 'txt_write' command")
             else:
-                print("Por favor, digite o nome do arquivo. Exemplo: 'txt_edit notas.txt'")
+                print("Please enter the file name. Example: 'txt_edit notes.txt'")
 
-# Comando csv_write
-        elif comando == "csv_write":
-            if argumento:
-                # Garante que o arquivo tenha a extensão correta
-                if not argumento.endswith('.csv'):
-                    argumento += '.csv'
+# Comand csv_write
+        elif comand == "csv_write":
+            if argument:
+                # Ensures the file has the correct extension
+                if not argument.endswith('.csv'):
+                    argument += '.csv'
                     
-                if os.path.exists(argumento):
-                    print(f"Erro: O arquivo '{argumento}' já existe. Use 'csv_add' para inserir dados.")
+                if os.path.exists(argument):
+                    print(f"Error: The file '{argument}' already exists. Use 'csv_add' to insert data")
                 else:
-                    print(f"\n--- Criando Planilha: {argumento} ---")
-                    colunas = input("Digite o nome das colunas separados por vírgula (ex: Nome, Idade, Email): ")
+                    print(f"\n--- Creating a Spreadsheet: {argument} ---")
+                    columns = input("Enter the column names separated by commas (e.g., Name, Age, Email): ")
                     
-                    # Limpa os espaços extras em volta dos nomes das colunas
-                    cabecalhos = [c.strip() for c in colunas.split(',')]
+                    # Clear the extra spaces around the column names
+                    headers = [c.strip() for c in columns.split(',')]
                     
                     try:
-                        # Abre em modo 'w' para escrever a primeira linha (cabeçalhos)
-                        with open(argumento, 'w', newline='', encoding='utf-8') as f:
+                        # Open in 'w' mode to write the first line (headers)
+                        with open(argument, 'w', newline='', encoding='utf-8') as f:
                             writer = csv.writer(f)
-                            writer.writerow(cabecalhos)
-                        print(f"Planilha '{argumento}' criada com as colunas: {', '.join(cabecalhos)}")
+                            writer.writerow(headers)
+                        print(f"Spreadsheet '{argument}' created with the following columns: {', '.join(headers)}")
                     except Exception as e:
-                        print(f"Erro ao criar planilha: {e}")
+                        print(f"Error creating spreadsheet: {e}")
             else:
-                print("Por favor, digite o nome da planilha. Exemplo: csv_write clientes.csv")
+                print("Please enter the spreadsheet name. Example: csv_write clients.csv")
 
-# Comando csv_add
-        elif comando == "csv_add":
-            if argumento:
-                if not argumento.endswith('.csv'):
-                    argumento += '.csv'
+# Comand csv_add
+        elif comand == "csv_add":
+            if argument:
+                if not argument.endswith('.csv'):
+                    argument += '.csv'
                     
-                if os.path.exists(argumento):
+                if os.path.exists(argument):
                     try:
-                        # Primeiro, lê o arquivo só para descobrir quais são as colunas
-                        with open(argumento, 'r', encoding='utf-8') as f:
+                        # First, it reads the file just to find out what the columns are
+                        with open(argument, 'r', encoding='utf-8') as f:
                             reader = csv.reader(f)
-                            cabecalhos = next(reader, None) # Pega apenas a primeira linha
+                            headers = next(reader, None) # Just take the first line
                         
-                        if cabecalhos:
-                            print(f"\n--- Adicionando dados em: {argumento} ---")
-                            nova_linha = []
+                        if headers:
+                            print(f"\n--- Adicionando dados em: {argument} ---")
+                            new_line = []
                             
-                            # Pergunta o valor específico para cada coluna dinamicamente
-                            for coluna in cabecalhos:
-                                valor = input(f"Digite o valor para '{coluna}': ")
-                                nova_linha.append(valor)
+                            # Requests the specific value for each column dynamically
+                            for column in headers:
+                                value = input(f"Type the value for '{column}': ")
+                                new_line.append(value)
                             
-                            # Agora abre em modo 'a' (append) para colar a nova linha no final
-                            with open(argumento, 'a', newline='', encoding='utf-8') as f:
+                            # Now open in 'a' (append) mode to paste the new line at the end
+                            with open(argument, 'a', newline='', encoding='utf-8') as f:
                                 writer = csv.writer(f)
-                                writer.writerow(nova_linha)
-                            print("Dados adicionados com sucesso!")
+                                writer.writerow(new_line)
+                            print("Data added successfully!")
                         else:
-                            print("Erro: A planilha está vazia e não possui colunas definidas.")
+                            print("Error: The spreadsheet is empty and has no defined columns")
                     except Exception as e:
-                        print(f"Erro ao editar planilha: {e}")
+                        print(f"Error editing spreadsheet: {e}")
                 else:
-                    print(f"Erro: Planilha '{argumento}' não encontrada. Crie primeiro com 'csv_write'.")
+                    print(f"Error: Spreadsheet '{argument}' not found. Create it first using 'csv_write'")
             else:
-                print("Por favor, digite o nome da planilha. Exemplo: cdv_add clientes.csv")
+                print("Please enter the spreadsheet name. Example: cdv_add clients.csv")
 
-# Comando csv_read
-        elif comando == "csv_read":
-            if argumento:
-                if not argumento.endswith('.csv'):
-                    argumento += '.csv'
+# Comand csv_read
+        elif comand == "csv_read":
+            if argument:
+                if not argument.endswith('.csv'):
+                    argument += '.csv'
                     
-                if os.path.exists(argumento):
+                if os.path.exists(argument):
                     try:
-                        with open(argumento, 'r', encoding='utf-8') as f:
+                        with open(argument, 'r', encoding='utf-8') as f:
                             reader = csv.reader(f)
-                            dados = list(reader) # Transforma tudo numa lista do Python
+                            datas = list(reader) # Turn everything into a Python list
                             
-                            if not dados:
-                                print("A planilha está vazia.")
+                            if not datas:
+                                print("The spreadsheet is empty.")
                             else:
-                                print(f"\n--- Lendo Planilha: {argumento} ---\n")
+                                print(f"\n--- Reading Spreadsheet: {argument} ---\n")
                                 
-                                # Encontra a maior palavra de cada coluna para alinhar a tabela perfeitamente
-                                tamanhos = [max(len(str(item)) for item in coluna) for coluna in zip(*dados)]
+                                # Find the longest word in each column to perfectly align the table
+                                sizes = [max(len(str(item)) for item in column) for column in zip(*datas)]
                                 
-                                for i, linha in enumerate(dados):
-                                    # Justifica o texto à esquerda baseado no tamanho máximo da coluna
-                                    linha_formatada = " | ".join(str(item).ljust(tamanho) for item, tamanho in zip(linha, tamanhos))
-                                    print(linha_formatada)
+                                for i, line in enumerate(datas):
+                                    # Justify the left-aligned text based on the maximum column size
+                                    formatted_line = " | ".join(str(item).ljust(size) for item, size in zip(line, sizes))
+                                    print(formatted_line)
                                     
-                                    # Imprime uma linha divisória logo abaixo do cabeçalho
+                                    # Prints a dividing line just below the header
                                     if i == 0:
-                                        print("-" * len(linha_formatada))
+                                        print("-" * len(formatted_line))
                                         
-                                print("\n--- Fim da Planilha ---")
+                                print("\n--- End of Spreadsheet ---")
                     except Exception as e:
-                        print(f"Erro ao ler planilha: {e}")
+                        print(f"Error reading spreadsheet: {e}")
                 else:
-                    print(f"Erro: Planilha '{argumento}' não encontrada.")
+                    print(f"Error: Spreadsheet '{argument}' not found.")
             else:
-                print("Por favor, digite o nome da planilha. Exemplo: csv_read clientes.csv")
+                print("Please enter the spreadsheet name. Example: csv_read clients.csv")
 
-# Comando open_image
-        elif comando == "open_image":
-            if argumento:
-                if os.path.exists(argumento):
+# Comand open_image
+        elif comand == "open_image":
+            if argument:
+                if os.path.exists(argument):
                     try:
-                        # 1. Abre a imagem e converte para o formato RGB padrão
+                        # 1. Open the image and convert it to the standard RGB format
                         from PIL import Image
-                        img = Image.open(argumento)
+                        img = Image.open(argument)
                         img = img.convert("RGB")
                         
-                        # 2. Define a largura máxima (em "pixels/caracteres") para caber no terminal
-                        largura_max = 60 
+                        # 2. Defines the maximum width (in "pixels/characters") to fit in the terminal
+                        max_width = 60 
                         
-                        # 3. Calcula a nova altura mantendo a proporção da imagem.
-                        # Multiplicamos por 0.5 porque os caracteres do terminal são 2x mais altos que largos!
-                        proporcao = (img.height / img.width)
-                        altura_nova = int(largura_max * proporcao * 0.5)
+                        # 3. Calculate the new height while maintaining the image's aspect ratio.
+                        # We multiply by 0.5 because the terminal characters are twice as tall as they are wide!
+                        proportion = (img.height / img.width)
+                        new_height = int(max_width * proportion * 0.5)
                         
-                        # 4. Encolhe a imagem
-                        img = img.resize((largura_max, altura_nova))
+                        # 4. Shrink the image
+                        img = img.resize((max_width, new_height))
                         
-                        print(f"\n--- Exibindo: {argumento} ---")
+                        print(f"\n--- Displaying: {argument} ---")
                         
-                        # 5. Varre a imagem linha por linha, pixel por pixel
-                        for y in range(altura_nova):
-                            linha_terminal = ""
-                            for x in range(largura_max):
+                        # 5. Scan the image line by line, pixel by pixel
+                        for y in range(new_height):
+                            terminal_line = ""
+                            for x in range(max_width):
                                 r, g, b = img.getpixel((x, y))
                                 
-                                # A MÁGICA: Código ANSI True Color para pintar o fundo do texto com o RGB do pixel
-                                # Colocamos dois espaços em branco '  ' para formar o bloco e depois o '\033[0m' para resetar a cor
-                                linha_terminal += f"\033[48;2;{r};{g};{b}m  \033[0m"
+                                # THE MAGIC: ANSI True Color code to paint the text background with the pixel's RGB.
+                                # We put two blank spaces ' ' to form the block and then '\033[0m' to reset the color.
+                                terminal_line += f"\033[48;2;{r};{g};{b}m  \033[0m"
                                 
-                            print(linha_terminal) # Imprime a linha inteira da imagem
+                            print(terminal_line) # Prints the entire line of the image.
                             
-                        print("-" * (largura_max * 2))
+                        print("-" * (max_width * 2))
                         
                     except Exception as e:
-                        print(f"Erro ao processar a imagem. Tem certeza de que é um arquivo de imagem válido? Erro: {e}")
+                        print(f"Error processing image. Are you sure it's a valid image file? Error: {e}")
                 else:
-                    print(f"Erro: O arquivo '{argumento}' não foi encontrado.")
+                    print(f"Error: The file '{argument}' was not found.")
             else:
-                print("Por favor, digite o nome da imagem. Exemplo: open_image logo.png")
+                print("Please enter the image name. Example: open_image logo.png")
 
-# Comando audio
-        elif comando == "audio":
-            if argumento:
-                # Inicializa o motor de áudio apenas quando for usado pela primeira vez
+# Comand audio
+        elif comand == "audio":
+            if argument:
+                # The audio engine is initialized only when it is used for the first time.
                 if not pygame.mixer.get_init():
                     pygame.mixer.init()
 
-                acao = argumento.strip().lower()
+                action = argument.strip().lower()
 
-                if acao == "pause":
+                if action == "pause":
                     pygame.mixer.music.pause()
-                    print("⏸️ Música em pausa.")
-                elif acao == "continue" or acao == "play":
+                    print("⏸️ Music paused.")
+                elif action == "continue" or action == "play":
                     pygame.mixer.music.unpause()
-                    print("▶️ Música retomada.")
-                elif acao == "stop":
+                    print("▶️ Music resumed.")
+                elif action == "stop":
                     pygame.mixer.music.stop()
-                    print("⏹️ Música parada.")
+                    print("⏹️ Music stopped.")
                 else:
-                    # Se não for nenhum comando de controlo, assume que é o nome do ficheiro
-                    if os.path.exists(argumento):
+                    # If it's not a control command, it assumes it's the filename.
+                    if os.path.exists(argument):
                         try:
-                            pygame.mixer.music.load(argumento)
-                            # O -1 faz com que a música fique em loop infinito
+                            pygame.mixer.music.load(argument)
+                            # The -1 makes the music loop infinitely.
                             pygame.mixer.music.play(-1)
-                            print(f"🎵 A tocar agora: {argumento} (em segundo plano)")
-                            print("DICA: Use 'audio pause' ou 'audio stop' para controlar o áudio.")
+                            print(f"🎵 Now playing: {argument} (in the background)")
+                            print("TIP: Use 'audio pause' or 'audio stop' to control the audio.")
                         except Exception as e:
-                            print(f"Erro ao tentar reproduzir o ficheiro. Certifique-se de que é um .mp3 ou .wav válido. Erro: {e}")
+                            print(f"Error playing the file. Please ensure it is a valid .mp3 or .wav file. Error: {e}")
                     else:
-                        print(f"Erro: O ficheiro '{argumento}' não foi encontrado.")
+                        print(f"Error: The file '{argument}' was not found.")
             else:
-                print("Por favor, digite o nome da música ou o comando. Ex: audio lofi.mp3")
+                print("Please type the song title or command. Ex: audio lofi.mp3")
 
-# Comando disk
-        elif comando == "disk":
+# Comand disk
+        elif comand == "disk":
             try:
-                # Analisa o disco com base no diretório em que estamos
-                caminho_atual = os.getcwd()
-                total, usado, livre = shutil.disk_usage(caminho_atual)
+                # Analyze the disk based on the directory we are in
+                actual_path = os.getcwd()
+                total, used, free = shutil.disk_usage(actual_path)
                 
-                # Converte os valores de bytes para Gigabytes (GB)
+                # Converts values ​​from bytes to Gigabytes (GB)
                 gb = 1024 ** 3
                 
-                print(f"\nAnálise de Armazenamento do disco atual:")
-                print(f" -> Espaço Total : {total // gb} GB")
-                print(f" -> Espaço Usado : {usado // gb} GB")
-                print(f" -> Espaço Livre : {livre // gb} GB")
+                print(f"\nAnalysis of current disk storage:")
+                print(f" -> Total Space : {total // gb} GB")
+                print(f" -> Used Space  : {used // gb} GB")
+                print(f" -> Free Space  : {free // gb} GB")
             except Exception as e:
-                print(f"Erro ao analisar o disco: {e}")
+                print(f"Error parsing disk: {e}")
 
-# Comando status
-        elif comando == "status":
-            print("\n--- Monitor de Hardware PyOS ---")
-            print("Analisando sensores do sistema... (aguarde 1 segundo)\n")
+# Comand status
+        elif comand == "status":
+            print("\n--- PyOS Hardware Monitor ---")
+            print("Analyzing system sensors... (please wait 1 second)\n")
             
             try:
-                # Função interna para desenhar a barra de progresso visual
-                def gerar_barra(porcentagem, tamanho=30):
-                    preenchido = int(tamanho * porcentagem // 100)
-                    vazio = tamanho - preenchido
-                    return f"[{'█' * preenchido}{'-' * vazio}]"
+                # Internal function to draw the visual progress bar.
+                def generate_bar(percentage, size=30):
+                    filled = int(size * percentage // 100)
+                    empty = size - filled
+                    return f"[{'█' * filled}{'-' * empty}]"
 
-                # 1. Lê a CPU (interval=1 faz o Python esperar 1 segundo para medir a velocidade real)
-                cpu_uso = psutil.cpu_percent(interval=1)
+                # 1. Reads the CPU (interval=1 makes Python wait 1 second to measure the actual speed)
+                cpu_use = psutil.cpu_percent(interval=1)
                 
-                # 2. Lê a Memória RAM
-                memoria = psutil.virtual_memory()
-                ram_uso = memoria.percent
-                ram_total = memoria.total / (1024**3) # Converte de bytes para Gigabytes (GB)
-                ram_usada = memoria.used / (1024**3)
+                # 2. Reads the RAM Memory
+                memory = psutil.virtual_memory()
+                ram_use = memory.percent
+                ram_total = memory.total / (1024**3) # Convert from bytes to Gigabytes (GB)
+                ram_usage = memory.used / (1024**3)
                 
-                # 3. Lê a Bateria (se for um notebook)
-                bateria = psutil.sensors_battery()
+                # 3. Read the battery (if it's a laptop).
+                battery = psutil.sensors_battery()
 
-                # Imprime os resultados com as barras
-                print(f"CPU: {gerar_barra(cpu_uso)} {cpu_uso}%")
-                print(f"RAM: {gerar_barra(ram_uso)} {ram_uso}% ({ram_usada:.1f}GB / {ram_total:.1f}GB)")
+                # Print the results with the bars.
+                print(f"CPU: {generate_bar(cpu_use)} {cpu_use}%")
+                print(f"RAM: {generate_bar(ram_use)} {ram_use}% ({ram_usage:.1f}GB / {ram_total:.1f}GB)")
                 
-                # Verifica se o computador tem sensor de bateria
-                if bateria:
-                    status_tomada = "🔌 Conectado" if bateria.power_plugged else "🔋 Na Bateria"
-                    print(f"BAT: {gerar_barra(bateria.percent)} {bateria.percent}% ({status_tomada})")
+                # Check if the computer has a battery sensor.
+                if battery:
+                    status_socket = "🔌 Conected" if battery.power_plugged else "🔋 In battery"
+                    print(f"BAT: {generate_bar(battery.percent)} {battery.percent}% ({status_socket})")
                 else:
-                    print("BAT: [ Sensor de bateria não detectado (Computador de Mesa?) ]")
+                    print("BAT: [ Battery sensor not detected (Desktop Computer?) ]")
                     
                 print("-" * 32)
                 
             except Exception as e:
-                print(f"Erro ao ler os sensores de hardware: {e}")
+                print(f"Error reading hardware sensors: {e}")
 
-# Comando devices
-        elif comando == "devices":
-            print("\n--- Gerenciador de Dispositivos PyOS ---")
+# Comand devices
+        elif comand == "devices":
+            print("\n--- PyOS Device Manager ---")
             
-            # 1. Lista Placas e Adaptadores de Rede
-            print("🌐 Adaptadores de Rede:")
+            # 1. List of Network Cards and Adapters
+            print("🌐 Network Adapters:")
             try:
-                redes = psutil.net_if_addrs()
-                for placa in redes.keys():
-                    # Ignora adaptadores virtuais estranhos do Windows para manter a lista limpa
-                    if "Loopback" not in placa and "Pseudo" not in placa:
-                        print(f"   [+] {placa}")
+                networks = psutil.net_if_addrs()
+                for plate in networks.keys():
+                    # Ignores extraneous Windows virtual adapters to keep the list clean.
+                    if "Loopback" not in plate and "Pseudo" not in plate:
+                        print(f"   [+] {plate}")
             except Exception as e:
                 print(f"   Erro ao ler rede: {e}")
 
-            print("\n🔌 Dispositivos USB Conectados:")
-            print("   (Lendo portas, aguarde alguns segundos...)\n")
+            print("\n🔌 Connected USB Devices:")
+            print("   (Reading doors, please wait a few seconds...)\n")
             
-            # 2. Lista Dispositivos USB usando comandos nativos do sistema
+            # 2. List USB devices using native system commands.
             try:
-                dispositivos_usb = []
+                usb_devices = []
                 
                 if sys.platform == 'win32':
-                    # Pede para o PowerShell do Windows listar apenas os USBs ativos e com nome
+                    # It asks Windows PowerShell to list only active USB drives with names.
                     cmd = ['powershell', '-Command', "Get-PnpDevice -PresentOnly | Where-Object { $_.InstanceId -match '^USB' -and $_.FriendlyName } | Select-Object -ExpandProperty FriendlyName"]
-                    # errors='ignore' evita que caracteres com acento quebrem o código
+                    # `errors='ignore'` prevents accented characters from breaking the code.
                     output = subprocess.check_output(cmd, encoding='cp850', errors='ignore')
                     
-                    # Limpa a lista e remove os "Hubs" genéricos que o Windows duplica
-                    linhas = [linha.strip() for linha in output.split('\n') if linha.strip() and "Hub" not in linha]
-                    dispositivos_usb = list(set(linhas)) # set() remove duplicatas
+                    # Clear the list and remove the generic "Hubs" that Windows duplicates.
+                    lines = [line.strip() for line in output.split('\n') if line.strip() and "Hub" not in line]
+                    usb_devices = list(set(lines)) # set() remove duplicates
                     
                 elif sys.platform == 'linux':
-                    # Usa o comando lsusb do Linux
+                    # Use the lsusb command in Linux.
                     output = subprocess.check_output(['lsusb'], text=True)
-                    dispositivos_usb = [linha.split(':', 2)[-1].strip() for linha in output.split('\n') if linha.strip()]
+                    usb_devices = [line.split(':', 2)[-1].strip() for line in output.split('\n') if line.strip()]
                     
                 elif sys.platform == 'darwin':
-                    # Usa o system_profiler do Mac
+                    # Use the Mac's system_profiler.
                     output = subprocess.check_output(['system_profiler', 'SPUSBDataType'], text=True)
-                    dispositivos_usb = [linha.strip().replace(':', '') for linha in output.split('\n') if linha.startswith('        ') and ':' in linha and '0x' not in linha]
+                    usb_devices = [line.strip().replace(':', '') for line in output.split('\n') if line.startswith('        ') and ':' in line and '0x' not in line]
                 
-                # Imprime os resultados encontrados
-                if dispositivos_usb:
-                    for d in dispositivos_usb:
+                # Print the results found.
+                if usb_devices:
+                    for d in usb_devices:
                         print(f"   [USB] {d}")
                 else:
-                    print("   Nenhum dispositivo USB nomeado encontrado.")
+                    print("   No named USB device found.")
                     
             except Exception as e:
-                print(f"   [Erro ao ler portas USB: O sistema bloqueou a varredura]")
+                print(f"   [Error reading USB ports: The system blocked the scan]")
                 
             print("-" * 42)
 
-# Comando scan
-        elif comando == "scan":
+# Comand scan
+        elif comand == "scan":
             import socket
             import threading
             
-            print(f"\n\033[1;36m========== 📡 RADAR DE REDE LOCAL ==========\033[0m")
-            print("Iniciando varredura tática (Ping Sweep)...")
+            print(f"\n\033[1;36m========== 📡 LOCAL NETWORK RADAR ==========\033[0m")
+            print("Initiating tactical sweep (Ping Sweep)...")
             
-            # 1. Descobre qual é o SEU IP atual na rede
-            meu_ip = "127.0.0.1"
+            # 1. Find out what YOUR current IP address is on the network.
+            my_ip = "127.0.0.1"
             try:
-                # Tenta conectar no Google rapidinho só para o seu roteador te dar a sua "identidade"
+                # Try connecting to Google quickly just so your router can give you your "identity".
                 s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
                 s.connect(("8.8.8.8", 80))
-                meu_ip = s.getsockname()[0]
+                my_ip = s.getsockname()[0]
                 s.close()
             except Exception:
-                print("❌ Não foi possível identificar a rede. Você está conectado ao Wi-Fi/Cabo?")
+                print("❌ We were unable to identify the network. Are you connected via Wi-Fi/Cable?")
                 continue
                 
-            # Extrai a base da rede (ex: de "192.168.0.15" vira "192.168.0.")
-            base_ip = '.'.join(meu_ip.split('.')[:-1]) + '.'
-            print(f"Sua Sub-rede: \033[1;33m{base_ip}0/24\033[0m")
-            print("Disparando 254 pacotes paralelos. Aguarde...\n")
+            # Extracts the network base (e.g., from "192.168.0.15" becomes "192.168.0.")
+            ip_base = '.'.join(my_ip.split('.')[:-1]) + '.'
+            print(f"Your Subnet: \033[1;33m{ip_base}0/24\033[0m")
+            print("Sending 254 parallel packets. Please wait...\n")
             
-            aparelhos_ativos = []
+            active_devices = []
             threads = []
             
-            # 2. A função que cada thread vai executar (pingar um único IP)
-            def pingar_alvo(ip):
-                # O comando muda se for Windows (win32) ou Linux/Mac
+            # 2. The function that each thread will perform (ping a single IP address)
+            def drip_target(ip):
+                # The command changes depending on whether it's Windows (win32) or Linux/Mac.
                 if sys.platform == "win32":
-                    # -n 1 (manda 1 pacote) | -w 500 (espera meio segundo) | > nul (esconde o texto feio do sistema)
+                    # -n 1 (sends 1 packet) | -w 500 (waits half a second) | > nul (hides the ugly text from the system)
                     cmd = f"ping -n 1 -w 500 {ip} > nul 2>&1"
                 else:
-                    # -c 1 (1 pacote) | -W 1 (espera 1 segundo) | > /dev/null (esconde o texto)
+                    # -c 1 (1 packet) | -W 1 (wait 1 second) | > /dev/null (hide the text)
                     cmd = f"ping -c 1 -W 1 {ip} > /dev/null 2>&1"
                 
-                resposta = os.system(cmd)
+                answer = os.system(cmd)
                 
-                # Se a resposta for 0, significa que o alvo recebeu o pacote e respondeu!
-                if resposta == 0:
-                    aparelhos_ativos.append(ip)
+                # If the response is 0, it means the target received the packet and responded!
+                if answer == 0:
+                    active_devices.append(ip)
 
-            # 3. Dispara as 254 threads de uma vez
+            # 3. It fires all 254 threads at once.
             for i in range(1, 255):
-                ip_alvo = f"{base_ip}{i}"
-                t = threading.Thread(target=pingar_alvo, args=(ip_alvo,))
+                target_ip = f"{ip_base}{i}"
+                t = threading.Thread(target=drip_target, args=(target_ip,))
                 threads.append(t)
                 t.start()
                 
-            # 4. Espera todos os radares voltarem com as respostas
+            # 4. Wait for all the radar systems to come back with the answers.
             for t in threads:
                 t.join()
                 
-            # 5. Imprime o relatório final e organiza os IPs em ordem numérica
-            aparelhos_ativos.sort(key=lambda ip: int(ip.split('.')[-1]))
+            # 5. Print the final report and organize the IPs in numerical order.
+            active_devices.sort(key=lambda ip: int(ip.split('.')[-1]))
             
-            print(f"🎯 \033[1;32mVarredura Concluída!\033[0m Encontrados \033[1;37m{len(aparelhos_ativos)}\033[0m dispositivos ativos:")
-            for ativo in aparelhos_ativos:
-                if ativo == meu_ip:
-                    print(f"   💻 \033[1;36m{ativo}\033[0m (Este Computador)")
-                elif ativo == f"{base_ip}1":
-                    print(f"   🌐 \033[1;33m{ativo}\033[0m (Provável Roteador)")
+            print(f"🎯 \033[1;32mScan Completed!\033[0m Found \033[1;37m{len(active_devices)}\033[0m active devices:")
+            for active in active_devices:
+                if active == my_ip:
+                    print(f"   💻 \033[1;36m{active}\033[0m (This Computer)")
+                elif active == f"{ip_base}1":
+                    print(f"   🌐 \033[1;33m{active}\033[0m (Probable Router)")
                 else:
-                    print(f"   📱 \033[1;37m{ativo}\033[0m (Dispositivo Desconhecido)")
+                    print(f"   📱 \033[1;37m{active}\033[0m (Unknown Device)")
                     
             print(f"\033[1;36m============================================\033[0m\n")
 
-# Comando adduser
-        elif comando == "adduser":
-            if argumento:
-                arquivo_db = "usuarios_db.json"
+# Comand adduser
+        elif comand == "adduser":
+            if argument:
+                archive_db = os.path.join(FOLDER_DATAS, "users_db.json")
                 try:
-                    # Carrega o banco de dados atual
-                    with open(arquivo_db, 'r', encoding='utf-8') as f:
-                        banco_usuarios = json.load(f)
+                    # Loads the current database.
+                    with open(archive_db, 'r', encoding='utf-8') as f:
+                        database_users = json.load(f)
                     
-                    # Verifica se o usuário já existe
-                    if argumento in banco_usuarios:
-                        print(f"Erro: O usuário '{argumento}' já existe no sistema.")
+                    # Checks if the user already exists.
+                    if argument in database_users:
+                        print(f"Error: The user '{argument}' already exists in the system.")
                     else:
-                        # Pede a senha para o novo usuário
-                        nova_senha = input(f"Crie uma senha para o usuário '{argumento}': ")
-                        banco_usuarios[argumento] = nova_senha
+                        # Asks the new user for the password.
+                        new_password = input(f"Create a password for the user '{argument}': ")
+                        database_users[argument] = new_password
                         
-                        # Salva a atualização no arquivo JSON
-                        with open(arquivo_db, 'w', encoding='utf-8') as f:
-                            json.dump(banco_usuarios, f, indent=4)
-                        print(f"Usuário '{argumento}' criado com sucesso!")
+                        # Saves the update to the JSON file.
+                        with open(archive_db, 'w', encoding='utf-8') as f:
+                            json.dump(database_users, f, indent=4)
+                        print(f"User '{argument}' created successfully!")
                 except Exception as e:
-                    print(f"Erro ao gerenciar usuários: {e}")
+                    print(f"Error managing users: {e}")
             else:
-                print("Por favor, digite o nome do novo usuário. Exemplo: adduser visitante")
+                print("Please enter the name of the new user. Example: adduser visitor")
 
-# Comando dltuser
-        elif comando == "dltuser":
-            if argumento:
-                # Trava de segurança: impede o suicídio digital!
-                if argumento == usuario:
-                    print("Erro Crítico: Você não pode deletar o seu próprio usuário enquanto está logado!")
+# Comand dltuser
+        elif comand == "dltuser":
+            if argument:
+                # Safety lock: prevents digital suicide!
+                if argument == user:
+                    print("Critical Error: You cannot delete your own user account while logged in!")
                 else:
-                    arquivo_db = "usuarios_db.json"
-                    arquivo_config = "config_db.json"
+                    archive_db = os.path.join(FOLDER_DATAS, "users_db.json")
+                    archive_config = os.path.join(FOLDER_DATAS, "config_db.json")
                     try:
-                        with open(arquivo_db, 'r', encoding='utf-8') as f:
-                            banco_usuarios = json.load(f)
+                        with open(archive_db, 'r', encoding='utf-8') as f:
+                            database_users = json.load(f)
                         
-                        if argumento in banco_usuarios:
-                            # Deleta o usuário do dicionário e salva
-                            del banco_usuarios[argumento]
-                            with open(arquivo_db, 'w', encoding='utf-8') as f:
-                                json.dump(banco_usuarios, f, indent=4)
-                            
-                            # Limpeza extra: apaga as configurações de cor desse usuário, se existirem
-                            if os.path.exists(arquivo_config):
-                                with open(arquivo_config, 'r', encoding='utf-8') as f:
-                                    banco_cores = json.load(f)
-                                if argumento in banco_cores:
-                                    del banco_cores[argumento]
-                                    with open(arquivo_config, 'w', encoding='utf-8') as f:
-                                        json.dump(banco_cores, f, indent=4)
+                        if argument in database_users:
+                            # Delete the user from the dictionary and save.
+                            del database_users[argument]
+                            with open(archive_db, 'w', encoding='utf-8') as f:
+                                json.dump(database_users, f, indent=4)
                                         
-                            print(f"Usuário '{argumento}' deletado do sistema com sucesso!")
+                            print(f"User '{argument}' successfully deleted from the system!")
                         else:
-                            print(f"Erro: O usuário '{argumento}' não existe no banco de dados.")
+                            print(f"Error: User '{argument}' does not exist in the database.")
                     except Exception as e:
-                        print(f"Erro ao gerenciar usuários: {e}")
+                        print(f"Error managing users: {e}")
             else:
-                print("Por favor, digite o nome do usuário que deseja deletar. Exemplo: dltuser visitante")
+                print("Please enter the username you wish to delete. Example: dltuser visitor")
 
-# Comando self-destruct
-        elif comando == "self-destruct":
+# Comand self-destruct
+        elif comand == "self-destruct":
             import time
             import tempfile
             
-            print("\n\033[1;41m\033[1;37m !!! ALERTA DE SEGURANÇA MÁXIMA !!! \033[0m")
-            print("\033[1;31mVocê iniciou o Protocolo de Autodestruição Total.\033[0m")
-            print("Isso apagará o seu Banco de Dados, Senhas e \033[1;33mTODO O CÓDIGO-FONTE DO PyOS\033[0m.")
-            print("NÃO HAVERÁ VOLTA. O SEU TRABALHO SERÁ PULVERIZADO.")
+            print("\n\033[1;41m\033[1;37m !!! MAXIMUM SECURITY ALERT !!! \033[0m")
+            print("\033[1;31mYou have initiated the Total Self-Destruction Protocol.\033[0m")
+            print("This will erase your Database, Passwords and \033[1;33mALL THE SOURCE CODE OF PyOS.\033[0m.")
+            print("THERE WILL BE NO GOING BACK. YOUR WORK WILL BE DESTROYED.")
             
-            confirmacao = input("\n\033[1;33mDigite o código 'OMEGA' para confirmar (ou Enter para cancelar): \033[0m")
+            confirmation = input("\n\033[1;33mEnter the code 'OMEGA' to confirm (or Enter to cancel): \033[0m")
             
-            if confirmacao.strip().upper() == "OMEGA":
-                print("\n\033[1;31m[!] CÓDIGO ACEITO. PROTOCOLO OMEGA INICIADO.\033[0m")
+            if confirmation.strip().upper() == "OMEGA":
+                print("\n\033[1;31m[!] CODE ACCEPTED. OMEGA PROTOCOL INITIATED.\033[0m")
                 
                 for i in range(5, 0, -1):
-                    sys.stdout.write(f"\r\033[1;31m[ INICIANDO LIMPEZA TOTAL EM {i} ... ]\033[0m")
+                    sys.stdout.write(f"\r\033[1;31m[ STARTING TOTAL CLEANING IN {i} ... ]\033[0m")
                     sys.stdout.flush()
                     time.sleep(1)
                     
-                print("\n\n\033[1;33mPREPARANDO CARGA EXPLOSIVA DO SISTEMA...\033[0m")
+                print("\n\n\033[1;33mPREPARING EXPLOSIVE CHARGE FOR THE SYSTEM...\033[0m")
                 time.sleep(1)
                 
-                # 1. Pega o caminho absoluto da pasta atual do seu projeto PyOS
-                pasta_pyos = os.getcwd()
+                # 1. Get the absolute path to the current folder of your PyOS project.
+                folder_pyos = os.getcwd()
                 
-                # 2. O Truque: Cria um script .bat na pasta TEMP do Windows (bem longe daqui)
-                caminho_bat = os.path.join(tempfile.gettempdir(), "apagar_pyos.bat")
+                # 2. The Trick: Create a .bat script in the Windows TEMP folder (far away from here).
+                bat_path = os.path.join(tempfile.gettempdir(), "erase_pyos.bat")
                 
-                # Este script espera 2 segundos, apaga a sua pasta inteira (rmdir /s /q) e depois apaga-se a si mesmo
-                conteudo_bat = f"""@echo off
+                # This script waits 2 seconds, deletes its entire folder (rmdir /s /q), and then deletes itself.
+                bat_content = f"""@echo off
                 timeout /t 2 /nobreak > nul
-                rmdir /s /q "{pasta_pyos}"
+                rmdir /s /q "{folder_pyos}"
                 del "%~f0"
                 """
-                # Salva o script fantasma
-                with open(caminho_bat, "w", encoding="utf-8") as f:
-                    f.write(conteudo_bat)
+                # Save the ghost script
+                with open(bat_path, "w", encoding="utf-8") as f:
+                    f.write(bat_content)
                     
-                print("\n\033[1;31mADEUS.\033[0m")
+                print("\n\033[1;31mGOODBYE.\033[0m")
                 time.sleep(1)
                 
-                # 3. Executa o script fantasma de forma invisível e desvinculada do Python
-                # CREATE_NO_WINDOW (0x08000000) impede que a tela preta do cmd apareça
-                subprocess.Popen(["cmd.exe", "/c", caminho_bat], creationflags=0x08000000)
+                # 3. Executes the ghost script invisibly and independently from Python.
+                # CREATE_NO_WINDOW (0x08000000) prevents the black screen from appearing in the command prompt.
+                subprocess.Popen(["cmd.exe", "/c", bat_path], creationflags=0x08000000)
                 
-                # 4. Suicídio do processo: fecha o PyOS na mesma fração de segundo
-                # Isso libera a pasta para que o script fantasma consiga apagá-la
+                # 4. Process suicide: PyOS closes in the same fraction of a second.
+                # This frees up the folder so that the ghost script can delete it.
                 sys.exit(0)
                 
             else:
-                print("\n\033[1;32mProtocolo abortado. O código-fonte sobreviveu.\033[0m")
+                print("\n\033[1;32mProtocol aborted. Source code survived.\033[0m")
 
         else:
-            print(f"Comando '{comando}' não reconhecido. Digite 'help' para ver a lista.")
+            print(f"The command '{command}' is not recognized. Type 'help' to see the list.")
 
 if __name__ == "__main__":
-    iniciar_pyos()
+    start_pyos()
