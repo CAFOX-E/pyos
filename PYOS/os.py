@@ -94,6 +94,7 @@ def iniciar_pyos():
     limpar_tela()
     print("=================================================")
     print(f" Bem-vindo ao PyOS, {usuario}! ")
+    print(" Projeto feito por \033[1;31mCAFOX-E\033[0m com carinho")
     print(" Digite 'help' para ver os comandos disponíveis.")
     print("=================================================")
 
